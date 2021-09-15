@@ -18,7 +18,7 @@ module yumaworks-getbulk {
        The <get-bulk> RPC operation provides controlled iteration
        procedure over instances of a YANG list object.
 
-     Copyright (c) 2016 - 2020, YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2016 - 2021, YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
@@ -34,6 +34,7 @@ module yumaworks-getbulk {
           |  +---w with-defaults?   with-defaults-mode
           |  +---w last-keys
           |  +---w list-test        yang:xpath1.0
+          |  +---w fixed-keys
           +--ro output
              +--ro bulk
                  +--ro data
@@ -97,6 +98,11 @@ module yumaworks-getbulk {
           </last-keys>
         </get-bulk>
     ";
+
+    revision 2021-08-07 {
+        description
+          "Add fixed-keys parameter to get-bulk operation";
+    }
 
     revision 2020-10-02 {
         description
@@ -225,6 +231,16 @@ module yumaworks-getbulk {
              evaluation.
             ";
         }
+
+        anyxml fixed-keys {
+          description
+            "Represents any keys that should be fixed in value.
+             If empty or missing, then the get-bulk will scan all
+             values of a key leaf. If present then the get-bulk
+             response will only include values that have a matching
+             value for the key leaf.";
+        }
+
       }
 
       output {

@@ -72,6 +72,11 @@ module yangcli-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+     revision 2021-09-12 {
+       description
+          "Add fixed-keys to get-walk command.";
+     }
+
      revision 2021-08-16 {
        description
           "Add allow-shell, shell-command, and run-shell.";
@@ -1072,8 +1077,7 @@ module yangcli-pro {
         type boolean;
         default false;
         description
-          "Enable or disable run-shell feature. Read only system variable,
-           cannot be changed from inside yangcli-pro.";
+          "Enable or disable run-shell operation.";
       }
 
 
@@ -2779,6 +2783,29 @@ module yangcli-pro {
              only interface entries with the specified type leaf value.
             ";
         }
+
+        anydata fixed-keys {
+          description
+            "If the server supports the fixed-keys parameter
+             then this parameter can be passed as a parameter
+             to the <get-bulk> operation.
+
+             This parameter is only relevant if the list-target
+             has multiple key leafs defined. It allows the get-walk
+             to only select 'next' entries for the unfixed key values.
+
+             This filter can be used instead of 'list-test' to
+             optimize the internal server callbacks to get list entries.
+             The unwanted entries can be pruned more efficiently
+             if the fixed keys are known to the server.
+
+             Each child entry represents a key leaf value
+             that should be treated as a fixed key leaf.
+             The namespace is not important as the server
+             will attempt to apply the list-target template to
+             the child nodes of this node.";
+         }
+
       }
 
     }  // rpc get-walk
