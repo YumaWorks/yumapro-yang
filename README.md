@@ -1,6 +1,6 @@
 # yumapro-yang
 
-## YumaPro 20.10 Release Train
+## YumaPro SDK 20.10 Release Train
 
 Contains the [YumaWorks](https://www.yumaworks.com)
 YANG modules used in the 20.10 release train.
