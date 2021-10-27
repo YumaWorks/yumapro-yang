@@ -756,12 +756,19 @@ module yumaworks-app-common {
            with the value 'standby'.";
       }
 
+      leaf ha-role-state-time {
+        type yang:date-and-time;
+        description
+          "The timestamp when the ha-role-state object last changed value.";
+      }
+
       leaf ha-enabled {
         type boolean;
         description
           "Set to the value of the --ha-enabled parameter.
            This must be set to 'true' for a working YP-HA configuration.";
       }
+
 
       leaf ha-sil-standby {
         type boolean;
@@ -919,6 +926,77 @@ module yumaworks-app-common {
            changes on the active HA server. It should be present on a
            working YP-HA configuration that has finished
            its initialization phase.";
+       }
+
+       leaf config-updates {
+         type yang:counter64;
+         description
+           "Number of config updates that this server has successfully
+            processed since the current role (active or standby) was set.
+            Each time the server resets or changes HA roles this counter
+            will be reset.";
+       }
+
+       leaf config-failures {
+         type yang:counter64;
+         description
+           "Number of config updates that this server has unsuccessfully
+            processed since the current role (active or standby) was set.
+            Each time the server resets or changes HA roles this counter
+            will be reset.";
+       }
+
+       leaf active-server {
+         type yt:NcxName;
+         description
+          "If this server is using the HA standby role, then the
+           HA active server will be identified by this object.";
+       }
+
+       leaf last-error-time {
+         type yang:date-and-time;
+         description
+          "The timestamp when the last error happened.
+
+           For HA-Active servers, this object represents the time
+           of the last config replication error, if any.
+           This object is not cleared if a subsequent config
+           update is successful.
+
+           For HA-Standby servers, this object represents the time
+           of the last failure to connect to the HA Active server.
+           This only applies to the case where the server is
+           reachable, but it is not the HA Active server, or not
+           ready to accept datastore replication requests.
+
+           If the HA Active server is unreachable then the YControl
+           layer will attempt reconnections. These reconnections will
+           not affect this timestamp.
+
+           This object is cleared if the HA Standby role is established
+           successfully. It is only present if errors have occurred
+           on this HA server. Replication errors are not reported.";
+       }
+
+       leaf last-error-msg {
+         type string;
+         description
+           "The error message for the last HA error code.
+
+           For HA-Active servers, this object represents the error string
+           of the last config replication error, if any.
+           This object is not cleared if a subsequent config
+           update is successful.
+
+           For HA-Standby servers, this object represents the error string
+           of the last failure to connect to the HA Active server.
+           This only applies to the case where the server is
+           reachable, but it is not the HA Active server, or not
+           ready to accept datastore replication requests.
+
+           This object is cleared if the HA Standby role is established
+           successfully. It is only present if errors have occurred
+           on this HA server. Replication errors are not reported.";
        }
 
     }

@@ -157,9 +157,9 @@ module yumaworks-db-api {
 
           container yp-ha-mode {
             description
-             "Message type: subsys-event;
-              Purpose: send mode change event to the server
-              Expected Response Message: none";
+             "Message type: subsys-request;
+              Purpose: send mode change request to the server
+              Expected Response Message: ok or error";
 
             choice action {
               mandatory true;
