@@ -1,6 +1,6 @@
 # yumapro-yang
 
-## YumaPro SDK 20.10 Release Train
+## YumaPro SDK YANG Modules
 
 Contains the [YumaWorks](https://www.yumaworks.com)
 YANG modules used in YumaPro SDK software.
