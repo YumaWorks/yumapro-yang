@@ -72,6 +72,13 @@ module yangcli-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+     revision 2021-10-30 {
+       description
+         "Change callhome-user from leaf to leaf-list and
+          support tracking failed user/server attempts
+          to attempt next user if the server reconnects.";
+     }
+
      revision 2021-10-21 {
        description
          "Add autoeventhandlers, use-event-handler,
@@ -1499,14 +1506,32 @@ module yangcli-pro {
         reference "RFC 8071";
       }
 
-      leaf callhome-user {
+      leaf-list callhome-user {
+        type nt:NcxUserName;
+        ordered-by user;
         description
           "Specifies the name of a configured user entry that
            should be used as the default user for callhome
            sessions, if no saved session entry is found matching
            the server IP address.  Will be ignored if the user
-           is not currently configured.";
-        type nt:NcxUserName;
+           is not currently configured.
+
+           If a callhome session is attempted with an entry
+           and that connection fails, then that callhome-user
+           will not be attempted for the specific server address
+           until yangcli-pro is restarted. This only applies
+           if there are multiple callhome-user entries.
+
+           If only one callhome-user entry exists then it will
+           be used every time, to be backward-compatible with
+           previous releases.
+
+           If used in yp-client then it is possible an application
+           callback will pick the callhome-user for a specific address.
+           It that case, the ordered-by user property will be
+           ignored.  Otherwise the callhome-user entries are attempted
+           in the order they are processed from the CLI or configuration
+           file.";
       }
 
       leaf check-output {

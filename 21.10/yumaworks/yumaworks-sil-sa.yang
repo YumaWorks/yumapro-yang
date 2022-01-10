@@ -23,6 +23,19 @@ module yumaworks-sil-sa {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+  revision 2021-10-28 {
+    description
+      "YPW-1857: SIL-SA EDIT2 callback on leaf-list node malfunction.
+        Add remove to the enum list of operation;
+
+       YPW-1864: Commit Completeness callbacks support for SIL-SA:
+        - Add validate-complete boolean leaf
+        - Add apply-complete boolean leaf
+        - Add commit-complete boolean leaf
+        - Add rollback-complete boolean leaf
+        - Add commit-completeness-hook message";
+  }
+
   revision 2020-08-27 {
     description
       "Add SIL-SA EDIT2 callbacks support:
@@ -181,6 +194,251 @@ module yumaworks-sil-sa {
       }
     }
 
+    grouping system-callbacks-parm {
+      description
+        "Specifies what system callbacks are enabled.";
+
+      leaf transaction-start {
+        type empty;
+        description
+          "The leaf specifies if there is a Transaction
+           Start Callback to register";
+      }
+      leaf transaction-complete {
+        type empty;
+        description
+          "The leaf specifies if there is a Transaction
+           Complete Callback to register";
+      }
+      leaf validate-complete {
+        type empty;
+        description
+          "The leaf specifies if there is a Validate
+           Complete Callback to register";
+      }
+      leaf apply-complete {
+        type empty;
+        description
+          "The leaf specifies if there is an Apply
+           Complete Callback to register";
+      }
+      leaf commit-complete {
+        type empty;
+        description
+          "The leaf specifies if there is a Commit
+           Complete Callback to register";
+      }
+      leaf rollback-complete {
+        type empty;
+        description
+          "The leaf specifies if there is a Rollback
+           Complete Callback to register";
+      }
+    }
+
+    grouping operation-parms {
+      leaf operation {
+        mandatory true;
+        type enumeration {
+          enum merge;
+          enum replace;
+          enum create;
+          enum delete;
+          enum load;
+          enum commit;
+          enum remove;
+        }
+        description
+          "Operation matching op_editop_t enumeration list.";
+      }
+    }
+
+    grouping hook-edit-parms {
+      leaf operation {
+        type string;
+        description
+          "Operation matching yang_patch_op_t enumeration list.
+           Specific for Set Hook add_edit() API";
+      }
+      leaf where {
+        type string;
+        description
+          "Specifies how a node should be inserted within a
+           user-ordered list";
+      }
+      leaf point {
+        type string;
+        description
+          "Specifies an insertion point for a data resource that
+           is being created or moved within a user ordered list
+           or leaf-list.";
+      }
+      leaf skip-callback {
+        type boolean;
+        description
+          "Specifies whether the server should invoke callbacks
+           for an added edit";
+
+        default "false";
+      }
+    }
+
+    grouping hooks-param {
+      leaf hook-path {
+        type string;
+        description
+          "Path string for object for Hook callbacks";
+      }
+      leaf hook-format {
+        type enumeration {
+          enum node;
+          enum subtree;
+        }
+        default "node";
+        description
+          "Hook format; dictates specific hook functionality";
+      }
+      leaf hook-type {
+        type enumeration {
+          enum none;
+          enum set-hook;
+          enum post-set-hook;
+          enum transaction-hook;
+        }
+        description
+          "Specifies Hook callback type";
+      }
+      leaf added-edit {
+        type boolean;
+        description
+          "Specifies whether the edit was added by Set Hook
+           of Post Set Hook callbacks. Flag to prevent Set Hook
+           looping; will not allow to call Set Hook family callbacks";
+      }
+    }
+
+    grouping transaction-id-obj {
+      leaf transaction-id {
+        mandatory true;
+        type string;
+        description
+          "Server specific transaction identifier.";
+      }
+    }
+
+    grouping user-id-obj {
+      leaf user-id {
+        type string;
+        description
+          "Identifies the user that initiated this transaction.";
+      }
+    }
+
+    grouping client-addr-obj {
+      leaf client-addr {
+        type string;
+        description
+          "Identifies the address of the client that initiated
+           this transaction.";
+      }
+    }
+
+    grouping config-parms {
+      uses yprof:agt-profile;
+      leaf-list bundle {
+        type yt:NcxName;
+        description "Bundle SIL SA libraries to load";
+      }
+      leaf-list module {
+        type yt:NcModuleSpec;
+        description "Module SIL SA libraries to load";
+      }
+      leaf-list deviation {
+        type yt:NcModuleSpec;
+        description "Deviations and annotations to load";
+      }
+    }
+
+    grouping event-stream-parm {
+      leaf event-stream {
+        type ywt:NcxNumName;
+        description
+          "Event stream name to use for the operation";
+      }
+    }
+
+    grouping stream-subevent-parm {
+      leaf stream-subevent {
+        type enumeration {
+          enum active {
+            description "Event stream is active";
+          }
+          enum inactive {
+            description "Event stream is inactive";
+          }
+        }
+        description
+          "Event stream callback subevent types";
+      }
+    }
+
+    grouping commit-phase-parm {
+      leaf commit-phase {
+        type enumeration {
+          enum validate {
+            description "Invoke Validate Complete callback";
+          }
+          enum apply {
+            description "Invoke Apply Complete callback";
+          }
+          enum commit {
+            description "Invoke Commit Complete callback";
+          }
+          enum rollback {
+            description "Invoke Rollback Complete callback";
+          }
+        }
+        description
+          "Specifies the Commit Completeness callback phase";
+      }
+    }
+
+    grouping commit-type-parm {
+      leaf commit-type {
+        type enumeration {
+          enum normal {
+            description "Commit operation was completed";
+          }
+          enum reply {
+            description "Replay-commit operation was completed";
+          }
+          enum none {
+            description "Type is not set";
+          }
+        }
+        description
+          "Specifies the type of commit that was just completed.
+           Used only for Commit Complete Callback.";
+      }
+    }
+
+    grouping return-val {
+      anyxml return-keys {
+        description
+          "List of all ancestor or self key values for the
+           object being retrieved, identified by the 'path'
+           value. There will be one child leaf for each key
+           in each list.";
+      }
+
+      anyxml values {
+        description
+          "Represents the retrieved values, if any.
+           There will be one child node for each returned
+           value.";
+      }
+    }
+
     augment "/yctl:ycontrol/yctl:message-payload/yctl:payload/yctl:payload" {
       container sil-sa {
 
@@ -249,164 +507,6 @@ module yumaworks-sil-sa {
                1) the server send trans-complete-hook event msg so subsystem
                   can invoke Transaction Complete Callbacks
           ";
-
-        grouping operation-parms {
-          leaf operation {
-            mandatory true;
-              type enumeration {
-                enum merge;
-                enum replace;
-                enum create;
-                enum delete;
-                enum load;
-                enum commit;
-              }
-            description
-              "Operation matching op_editop_t enumeration list.";
-          }
-        }
-
-        grouping hook-edit-parms {
-
-          leaf operation {
-            type string;
-            description
-              "Operation matching yang_patch_op_t enumeration list.
-               Specific for Set Hook add_edit() API";
-          }
-
-          leaf where {
-            type string;
-            description
-              "Specifies how a node should be inserted within a
-               user-ordered list";
-          }
-
-          leaf point {
-            type string;
-            description
-              "Specifies an insertion point for a data resource that
-              is being created or moved within a user ordered list
-              or leaf-list.";
-          }
-
-          leaf skip-callback {
-            type boolean;
-            description
-              "Specifies whether the server should invoke callbacks
-               for an edded edit";
-
-            default "false";
-          }
-        }
-
-        grouping hooks-param {
-          leaf hook-path {
-            type string;
-            description
-              "Path string for object for Hook callbacks";
-          }
-
-          leaf hook-format {
-            type enumeration {
-              enum node;
-              enum subtree;
-            }
-            default "node";
-            description
-              "Hook format; dictates specific hook functionality";
-          }
-
-          leaf hook-type {
-            type enumeration {
-              enum none;
-              enum set-hook;
-              enum post-set-hook;
-              enum transaction-hook;
-            }
-            description
-              "Specifies Hook callback type";
-          }
-
-          leaf added-edit {
-            type boolean;
-            description
-              "Specifies whether the edit was added by Set Hook
-               of Post Set Hook callbacks. Flag to prevent Set Hook
-               looping; will not allow to call Set Hook family callbacks";
-          }
-        }
-
-        grouping transaction-id-obj {
-
-          leaf transaction-id {
-            mandatory true;
-            type string;
-            description
-              "Server specific transaction identifier.";
-          }
-        }
-
-        grouping user-id-obj {
-
-          leaf user-id {
-            type string;
-            description
-              "Identifies the user that initiated this transaction.";
-          }
-        }
-
-        grouping client-addr-obj {
-
-          leaf client-addr {
-            type string;
-            description
-              "Identifies the address of the client that initiated
-               this transaction.";
-          }
-        }
-
-        grouping config-parms {
-          uses yprof:agt-profile;
-
-          leaf-list bundle {
-            type yt:NcxName;
-            description "Bundle SIL SA libraries to load";
-          }
-
-          leaf-list module {
-            type yt:NcModuleSpec;
-            description "Module SIL SA libraries to load";
-          }
-
-          leaf-list deviation {
-            type yt:NcModuleSpec;
-            description "Deviations and annotations to load";
-          }
-        }
-
-        grouping event-stream-parm {
-          leaf event-stream {
-            type ywt:NcxNumName;
-            description
-             "Event stream name to use for the operation";
-          }
-        }
-
-        grouping stream-subevent-parm {
-          leaf stream-subevent {
-            type enumeration {
-              enum active {
-                description "Event stream is active";
-              }
-              enum inactive {
-                description "Event stream is inactive";
-              }
-            }
-            description
-             "Event stream callback subevent types";
-          }
-        }
 
         choice message-type {
           mandatory true;
@@ -519,19 +619,7 @@ module yumaworks-sil-sa {
               }
             }
 
-            leaf transaction-start {
-              type boolean;
-              description
-                "The leaf specifies if there is a Transaction
-                 Start Callbacks to register";
-            }
-
-            leaf transaction-complete {
-              type boolean;
-              description
-                "The leaf specifies if there is a Transaction
-                 Complete Callbacks to register";
-            }
+            uses system-callbacks-parm;
           }
 
           container start-transaction {
@@ -965,23 +1053,6 @@ module yumaworks-sil-sa {
                  presence containers.";
             }
 
-            grouping return-val {
-              anyxml return-keys {
-                description
-                  "List of all ancestor or self key values for the
-                   object being retrieved, identified by the 'path'
-                   value. There will be one child leaf for each key
-                   in each list.";
-              }
-
-              anyxml values {
-                description
-                  "Represents the retrieved values, if any.
-                   There will be one child node for each returned
-                   value.";
-              }
-            }
-
             choice return-choice {
               case return-one {
                 description
@@ -1242,7 +1313,7 @@ module yumaworks-sil-sa {
             description
              "Message type: server-reply;
               Purpose: server will send this element containing the
-              requested val_value based on XPath of object instance.
+                requested val_value based on XPath of object instance.
               Expected Response Message: none";
 
             anyxml value {
@@ -1279,11 +1350,27 @@ module yumaworks-sil-sa {
                description
                  "All streams flag to identify callback.";
             }
+          }  // container stream-callback-event
 
 
-          }  // container bundle-load-event
+          container commit-completeness-hook {
+            description
+             "Message type: server-request;
+              Purpose: Send a request which may require the
+                SIL-SA callback functions on the subsystem to be invoked;
 
+                This message requests that Commit Completeness callbacks
+                should be invoked on the subsystem.
 
+              Expected Response Message: <ok> or <error>.";
+
+            uses transaction-id-obj;
+            uses user-id-obj;
+            uses client-addr-obj;
+
+            uses commit-phase-parm;
+            uses commit-type-parm;
+          } // container commit-completeness-hook
 
         } // choice message-type
       } // container sil-sa
