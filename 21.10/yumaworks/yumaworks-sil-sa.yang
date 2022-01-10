@@ -1,4 +1,5 @@
 module yumaworks-sil-sa {
+  yang-version 1.1;
   namespace "http://yumaworks.com/ns/yumaworks-sil-sa";
 
   prefix "ysil";
@@ -33,7 +34,11 @@ module yumaworks-sil-sa {
         - Add apply-complete boolean leaf
         - Add commit-complete boolean leaf
         - Add rollback-complete boolean leaf
-        - Add commit-completeness-hook message";
+        - Add commit-completeness-hook message
+
+       YPW-1870: SIL-SA editvars support
+        - Add editvars container to edit list
+        - Add editvars container to child-edit list";
   }
 
   revision 2020-08-27 {
@@ -363,7 +368,7 @@ module yumaworks-sil-sa {
       leaf event-stream {
         type ywt:NcxNumName;
         description
-          "Event stream name to use for the operation";
+          "Event stream name to use for the operation.";
       }
     }
 
@@ -378,7 +383,7 @@ module yumaworks-sil-sa {
           }
         }
         description
-          "Event stream callback subevent types";
+          "Event stream callback subevent types.";
       }
     }
 
@@ -399,7 +404,7 @@ module yumaworks-sil-sa {
           }
         }
         description
-          "Specifies the Commit Completeness callback phase";
+          "Specifies the Commit Completeness callback phase.";
       }
     }
 
@@ -436,6 +441,63 @@ module yumaworks-sil-sa {
           "Represents the retrieved values, if any.
            There will be one child node for each returned
            value.";
+      }
+    }
+
+    grouping editvars-parm {
+      container editvars {
+        leaf insert-op {
+          type enumeration {
+            enum none;
+            enum first;
+            enum last;
+            enum before;
+            enum after;
+          }
+          description
+            "Specifies the YANG insert operation.";
+        }
+        leaf insert-str {
+          type string;
+          description
+            "Identifies the saved string for value or key attr.";
+        }
+        leaf insert-mode {
+          type enumeration {
+            enum none;
+            enum key;
+            enum value;
+            enum point;
+          }
+          description
+            "Specifies the insert mode requested.";
+        }
+        anydata insert-val {
+          description
+            "Represents the insert value, if any.
+             Should be present if the insert operation is 'before'
+             or 'after'.";
+        }
+        leaf sil-priority {
+          type uint8;
+          description
+            "Identifies the 2nd SIL priority for server.";
+        }
+        leaf operset {
+          type empty;
+          description
+            "Specifies whether operation is set or not.";
+        }
+        leaf move {
+          type empty;
+          description
+            "Specifies whether the insert is for MOVE operation or not.";
+        }
+        leaf skip-sil-partial {
+          type empty;
+          description
+            "Specifies whether skip_sil_partial is needed or not.";
+        }
       }
     }
 
@@ -724,6 +786,7 @@ module yumaworks-sil-sa {
               uses operation-parms;
               uses path-parm;
               uses hooks-param;
+              uses editvars-parm;
 
               anyxml newval {
                 description
@@ -752,6 +815,7 @@ module yumaworks-sil-sa {
                   is MERGE";
 
                 uses operation-parms;
+                uses editvars-parm;
 
                 anyxml newval {
                   description
