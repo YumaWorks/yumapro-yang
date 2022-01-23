@@ -12,12 +12,17 @@ module yumaworks-extensions {
   description
     "This module contains definitions for YumaWorks YANG extensions.
 
-     Copyright (c) 2012 - 2019 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2012 - 2021 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+  revision 2021-12-14 {
+    description
+       "Update sil-aio-get2 extension. Remove reference to deafult values.";
+  }
 
   revision 2020-03-31 {
     description
@@ -416,11 +421,9 @@ module yumaworks-extensions {
 
        The 'parmstr' argument can specify the encoding that will
        be used in the callback. Available options are:
-         - xml
-         - json
-
-       If not specified default val value retrieval mechanism
-       will be assumed.
+         - xml: XML element in a buffer is expected in return value
+         - json: JSON object in a buffer is expected in return value
+         - val: val_value_t tree is expected in return value
       ";
     argument parmstr;
   }
