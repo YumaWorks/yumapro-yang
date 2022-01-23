@@ -24,6 +24,10 @@ module yumaworks-grpc-mon {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+  revision 2022-01-10 {
+    description "Fix sil-aio-get2 extension usage";
+  }
+
   revision 2021-08-23 {
     description "Initial version";
   }
@@ -36,7 +40,7 @@ module yumaworks-grpc-mon {
 
 
     container statistics {
-      ywx:sil-aio-get2;
+      ywx:sil-aio-get2 "val";
       description
         "The statistics container contains information about
          Client and Server streams total statistics.";
@@ -67,7 +71,7 @@ module yumaworks-grpc-mon {
 
     list server {
       key name;
-      ywx:sil-aio-get2;
+      ywx:sil-aio-get2 "val";
       description
         "Statistical data pertaining to the list of gRPC server(s).";
 
@@ -169,7 +173,7 @@ module yumaworks-grpc-mon {
 
     container server-streams {
       presence "Presence Container";
-      ywx:sil-aio-get2;
+      ywx:sil-aio-get2 "val";
       description
         "Container representing open gRPC server streams.";
 
@@ -202,7 +206,7 @@ module yumaworks-grpc-mon {
 
     container client-streams {
       presence "Presence Container";
-      ywx:sil-aio-get2;
+      ywx:sil-aio-get2 "val";
       description
         "Container representing open gRPC client streams.";
 

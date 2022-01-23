@@ -566,7 +566,9 @@ module netconfd-pro {
               The server  does not accept the value of 0 for
               this parameter. The minimal acceptable value is 1 second.
               The default value is 10.";
-          type uint32;
+          type uint32 {
+             range "1 .. max";
+          }
           default 10;
         }
       }
@@ -2386,7 +2388,7 @@ module netconfd-pro {
            "Server Identifier string to use for this server.
             Used in YControl and SIL-SA messages to identifier
             the server to all subsystems.  Used in YP-HA to
-            identify this server in the YP-HSA server pool";
+            identify this server in the YP-HA server pool";
         type nt:NcxName;
         default "server1";
       }
