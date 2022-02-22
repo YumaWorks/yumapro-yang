@@ -32,12 +32,17 @@ module yumaworks-system {
     description
        "Common system operations for the netconfd-pro server.
 
-     Copyright (c) 2013 - 2021 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2013 - 2022 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+    revision 2022-01-27 {
+        description
+          "Deprecate <conformance> and <module-type> leafs.";
+    }
 
     revision 2021-08-24 {
         description
@@ -174,9 +179,16 @@ module yumaworks-system {
     }
 
     augment /ncm:netconf-state/ncm:schemas/ncm:schema {
+      description
+        "Add extra information to schema list,
+         This has been replaced by the ietf-yang-library
+         module. Use that module instead of the schema list.";
+      status deprecated;
+
       leaf conformance {
         type boolean;
         config false;
+        status deprecated;
         description
           "Indicates whether the server is claiming conformance
            to the module represented by this schema or not.
@@ -197,6 +209,7 @@ module yumaworks-system {
           }
         }
         config false;
+        status deprecated;
         description
           "Indicates the type of module for this entry";
       }

@@ -2903,7 +2903,7 @@ module yangcli-pro {
               type nt:NcxIdentifier;
               description
                 "Name of the group to remove some sessions.  The
-                 'session' parameer must also be present.";
+                 'session' parameter must also be present.";
             }
           }
           case show-case {
@@ -3507,11 +3507,11 @@ module yangcli-pro {
             leaf ncport {
               type uint16 {
                 range "1..max";
-            }
-            default 830;
-            description
-              "NETCONF port number to use.  If not present, then
-               port 830, followed by port 22, will be tried.";
+              }
+              default 830;
+              description
+                "NETCONF port number to use.  If not present, then
+                 port 830, followed by port 22, will be tried.";
             }
 
             uses EntryPointParm;
