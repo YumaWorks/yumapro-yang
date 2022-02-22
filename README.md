@@ -13,7 +13,7 @@ Each October a new release train is started. (e.g. 20.10, 21.10).
  - YumaPro SDK Release Trains
      - 19.10: oldstable
      - 20.10: stable
-     - 21.10: unstable
+     - 21.10: stable (current)
 
 [YumaPro Release Information](https://www.yumaworks.com/features/yumapro-sdk-release-information/)
 
