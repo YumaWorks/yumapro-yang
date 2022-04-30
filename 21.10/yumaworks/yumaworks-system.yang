@@ -39,6 +39,11 @@ module yumaworks-system {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2022-03-08 {
+        description
+          "Add get-server-version operation";
+    }
+
     revision 2022-01-27 {
         description
           "Deprecate <conformance> and <module-type> leafs.";
@@ -601,5 +606,26 @@ module yumaworks-system {
       description
         "Get the YP-HA status information for this server.";
     }
+
+    rpc get-server-version {
+       output {
+         leaf version {
+           type string;
+           description
+             "The version string returned by the ncx_get_version API";
+         }
+         leaf build-date {
+           type string;
+           description
+             "The build-date string returned by the ncx_get_build_date API";
+         }
+       }
+       description
+         "Get the server version string and build date.
+          This information is provided in an RPC operation instead
+          of the <operational> datadtore so it is available even if the
+          datastores are not ready to use.";
+     }
+
 
 }

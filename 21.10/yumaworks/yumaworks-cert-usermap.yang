@@ -1,0 +1,49 @@
+module yumaworks-cert-usermap {
+    yang-version 1.1;
+    namespace "urn:ymaworks:params:xml:ns:yumaworks-cert-usermap";
+    prefix "ywcu";
+
+    import ietf-netconf-acm { prefix nacm; }
+    import ietf-x509-cert-to-name { prefix x509c2n; }
+
+    organization "YumaWorks, Inc.";
+
+    contact
+        "Support <support at yumaworks.com>";
+
+    description
+       "Run-Time access to cert-to-user mappings.
+        This module is only loaded if the with-yumaworks-cert-usermap
+        parameter is set to 'true'.
+
+        Copyright (c) 2022 YumaWorks, Inc. All rights reserved.
+
+        Redistribution and use in source and binary forms, with or
+        without modification, is permitted pursuant to, and subject
+        to the license terms contained in, the BSD 3-Clause License
+        http://opensource.org/licenses/BSD-3-Clause.
+
+       ";
+
+    revision 2022-02-06 {
+      description
+        "Initial version for 21.10-6.";
+    }
+
+    container cert-usermap {
+      nacm:default-deny-all;
+
+      description
+        "Contains all configured cert-to-name entries.
+         All entries from the --cert-usermap CLI parameter
+         are independent of this configuration data.
+
+         The server will check the --cert-usermap parameters
+         first. If no match then the cert-to-name list will
+         be checked.";
+
+
+      uses x509c2n:cert-to-name;
+    }
+
+}
