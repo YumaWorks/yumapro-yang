@@ -16,12 +16,19 @@ module yumaworks-sil-sa {
   description
     "YumaPro SIL Sub-Agent message definitions.
 
-     Copyright (c) 2014 - 2020 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2014 - 2022 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+  revision 2022-04-05 {
+    description
+      "YPW-1916:
+       - Add modpath, datapath, and runpath leafs to
+         config-response message";
+  }
 
   revision 2021-10-28 {
     description
@@ -390,6 +397,22 @@ module yumaworks-sil-sa {
             type yt:NcModuleSpec;
             description "Deviations and annotations to load";
           }
+
+          leaf modpath {
+            type string;
+            description "Server module search path setting";
+          }
+
+          leaf datapath {
+            type string;
+            description "Server data search path setting";
+          }
+
+          leaf runpath {
+            type string;
+            description "Server library search path setting";
+          }
+
         }
 
         grouping event-stream-parm {
