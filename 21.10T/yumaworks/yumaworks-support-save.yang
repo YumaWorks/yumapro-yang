@@ -4,7 +4,6 @@ module yumaworks-support-save {
   prefix "yss";
 
   import ietf-netconf-acm { prefix nacm; }
-  import ietf-restconf { prefix rc; revision-date 2017-01-26; }
 
   organization "YumaWorks, Inc.";
 
@@ -78,13 +77,15 @@ module yumaworks-support-save {
 
    ";
 
+  revision 2022-05-19 {
+    description
+       "Remove support-data-save since not needed and causes
+        pyang error";
+  }
+
   revision 2017-07-27 {
     description
        "Initial version";
-  }
-
-  rc:yang-data support-save-data {
-    uses support-save-data;
   }
 
   rpc get-support-save {
