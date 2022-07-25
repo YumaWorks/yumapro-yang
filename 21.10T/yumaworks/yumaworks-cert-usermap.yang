@@ -40,8 +40,26 @@ module yumaworks-cert-usermap {
 
          The server will check the --cert-usermap parameters
          first. If no match then the cert-to-name list will
-         be checked.";
+         be checked.
 
+         Note that the 'fingerprint' leaf is a formatted
+         hex-string. The first byte in the hex-string is
+         the hashing algorithm identifier.
+         The server does not use this value for any purpose.
+         Any valid value defined in 'TLS HashAlgorithm
+         Registry' (RFC 5246) is accepted.
+         These values are listed here.
+
+           Registry value       First Octet
+           --------------       -----------
+           - none(0)             00
+           - md5(1)              01
+           - sha1(2)             02
+           - sha224(3)           03
+           - sha256(4)           04
+           - sha384(5)           05
+           - sha512(6)           06
+        ";
 
       uses x509c2n:cert-to-name;
     }

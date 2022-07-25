@@ -36,6 +36,13 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2022-07-02 {
+      description
+        "21.10 addition only:
+         - Add --tls-debug parameter.
+         - Add --tls-cipherlist parameter.";
+    }
+
     revision 2022-02-25 {
       description
         "21.10 addition only:
@@ -2369,6 +2376,43 @@ module netconfd-pro {
         }
         default off;
       }
+
+      leaf tls-cipherlist {
+        description
+          "The cipherlist parameter to use to configure the server
+           using the SSL_CTX_set_cipher_list function in openssl.
+           This parameter is passed directly and not checked.
+
+           Warning! For Advanced OpenSSL Users Only!
+
+           Refer to the OpenSSL documentation for all details
+           and support. OpenSSL problems due to use of this
+           parameter are not supported.
+
+           - https://www.openssl.org/docs/man1.0.2/man3/
+             SSL_set_cipher_list.html
+
+           - https://www.openssl.org/docs/man1.0.2/man1/ciphers.html
+
+           - https://www.openssl.org/docs/manmaster/man1/openssl-ciphers.html
+
+           - https://www.iana.org/assignments/tls-parameters/
+             tls-parameters.xhtml#tls-parameters-4
+         ";
+         type string {
+            length "1 .. 256";
+         }
+      }
+
+      leaf tls-debug {
+        description
+          "Enable extra NETCONF over TLS session debugging.
+           Used with the --log-level parameter to increase the
+           amount of debugging info printed.";
+        type boolean;
+        default false;
+      }
+
 
       leaf trim-whitespace {
         description
