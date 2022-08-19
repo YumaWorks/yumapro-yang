@@ -36,6 +36,12 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2022-07-25 {
+      description
+        "21.10 addition only:
+         - Deprecate --create-empty-npcontainers parameter.";
+    }
+
     revision 2022-07-02 {
       description
         "21.10 addition only:
@@ -1049,9 +1055,14 @@ module netconfd-pro {
             This is the default style.
 
             If this parameter is set to false, then the server
-            will not create empty NP containers.";
+            will not create empty NP containers.
+
+            This parameter MUST be set to true for proper server
+            XPath evaluation.  It is now deprecated.  It will be
+            set to 'obsolete' in the next release train.";
         type boolean;
         default true;
+        status deprecated;
       }
 
       leaf db-lock-retry-interval {
