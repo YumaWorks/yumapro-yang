@@ -11,8 +11,6 @@ YumaWorks maintains multiple release trains to increase stability.
 Each October a new release train is started. (e.g. 20.10, 21.10).
 
  - YumaPro SDK Release Trains
-     - 19.10: oldstable
-     - 20.10: stable
      - 21.10: stable (current)
      - 21.10T: unstable
 
