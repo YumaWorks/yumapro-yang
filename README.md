@@ -63,5 +63,5 @@ This package uses the 20.10 release train.
 
 ### yumabench
 
-The [yumabench](https://www.yumaworks.com/support/download-yumabench/)
+The [yumabench](https://www.yumaworks.com/tools/yumabench/)
 package provides a Qt5-based GUI for managing NETCONF servers.
