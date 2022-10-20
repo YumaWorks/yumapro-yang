@@ -1,0 +1,293 @@
+module yumaworks-yangmap {
+
+    namespace "http://yumaworks.com/ns/yumaworks-yangmap";
+
+    prefix "ymap";
+
+    import ietf-restconf { prefix rc; }
+    import yuma-types { prefix yt; }
+
+    organization "YumaWorks, Inc.";
+
+    contact
+        "Support <support at yumaworks.com>";
+
+    description
+       "YANG model mapping control block parameters.
+
+        +--------------+      +---------+     +--------------+
+        | source model |  <-> | yangmap | <-> | target model |
+        +--------------+      +---------+     +--------------+
+
+        Purpose:
+          This module is used as metadata to convert
+          data instances from a source data model to
+          a target data model.
+            - present simplified model for CLI
+            - support a new module with objects that can
+              map to existing objects.
+
+          The structure of this metadata allows 1:N model mapping
+          of container and list data nodes.
+
+          Child nodes of containers and lists can be mapped to
+          multiple target nodes in the target model.
+
+        Terms:
+          source model: The data model that is visible to the
+          yangcli user in config term mode. This model is for
+          client use and does not exist on the server.
+
+          target model: The data model that is implemented on the
+          server. This model is not visible to the client in
+          config term mode.
+
+          yangmap: a set of mappings to convert a source schema
+          node to a target schema node. A source data node can
+          be mapped to multiple target nodes.
+
+          key stack: Each data node can be identified by its
+          absolute schema-node-identifier string and a set of
+          key values called the 'key stack'. The stack is comprised
+          of all key leafs from top to bottom and left to right.
+
+          ancestor keys: There are zero or more keys within a
+          a key stack that represent keys from ancestor nodes.
+          These values are fixed for the purposes of retrieval
+          operations.
+
+          local keys: There are zero or more keys within a
+          a key stack that represent keys from the current node.
+          This is only possible if the current node is a YANG list
+          and there is a key statement defined for that list.
+          These values are not fixed for the purposes of retrieval
+          operations.
+
+       Usage Restrictions:
+          Each yangmap must represent the model mapping for at
+          least one subtree.
+
+          Multiple subtrees can be represented in a single yangmap.
+
+          The source and terget subtrees must be completely disjoint.
+
+          Only top-level containers and lists used as nodemap
+          source objects are supported at this time.
+          An entire source data subtree from top to bottom
+          must be mapped.
+
+          Top-level choice-stmts are not supported.
+          The target node does not have to be a top-level data node,
+          but it must be a container or list node.
+
+          Containers and even lists can be removed from the source
+          hierarchy. There can be different containers and lists
+          in the target source tree.
+
+          Only configuration data nodes are supported at this time.
+          Operational data, RPC, action, notification are not yet
+          supported.
+
+          Only containers and lists can be mapped as source or target
+          nodes within a nodemap.  Other nodes are allowed within the
+          nodemap within a keymap or childmap.
+
+          Only one mapping is supported per node.
+
+          Key mappings must be complete so that any node within
+          the source subtree can be mapped to its target node
+          without any missing key leaf values.
+
+          If a list is mapped to a container, then only one instance
+          of the list will be allowed.
+
+          Leafs should map to other leafs or leaf-list using the
+          same data type.  Data type conversions will be attempted
+          if not.
+
+          If a leaf-list is mapped to a leaf then only once instace
+          is allowed in the leaf-list.
+
+     Copyright (c) 2018 YumaWorks, Inc. All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject
+     to the license terms contained in, the BSD 3-Clause License
+     http://opensource.org/licenses/BSD-3-Clause";
+
+    revision 2018-01-04 {
+        description
+          "Initial version";
+    }
+
+    // TEMP ADAPTED FROM ietf-sid-file.yang
+    typedef schema-node-id {
+      type string {
+        pattern
+          '/[a-zA-Z_][a-zA-Z0-9\-_.]*:[a-zA-Z_][a-zA-Z0-9\-_.]*' +
+          '(/[a-zA-Z_][a-zA-Z0-9\-_.]*(:[a-zA-Z_][a-zA-Z0-9\-_.]*)?)*';
+      }
+      description
+        "Identifies a schema-node identifier string for use in the
+         YANG mapping. Encoding rules:
+         - first node must be in the form /module-name:local-name
+         - descendant nodes from the same module must be in the
+           form /local-name (no module name present).
+         - descendant nodes from a different module (via augments)
+           must be in the form /module-name:local-name
+         - choice and case statement names must be present";
+    }
+
+    typedef child-node-name {
+      type string {
+        pattern
+          '[a-zA-Z_][a-zA-Z0-9\-_.]*(:[a-zA-Z_][a-zA-Z0-9\-_.]*)?';
+      }
+      description
+        "Identifies a child node string for use in the
+         YANG mapping. There are two allowed formats:
+
+         module-name:child-name -- used only for a child node
+         from a different module namespace than the parent node.
+
+         child-name -- used only for a child node from the
+         same module namespace as the parent node.
+      ";
+    }
+
+    grouping keymap {
+      list keymap {
+        description
+          "There must be one entry for each key leaf in the
+           target of the mapping.";
+        key key-node;
+        leaf key-node {
+          type schema-node-id;
+          description
+            "The leaf data node within the target model
+             that corresponds to a key leaf in the keystack.";
+        }
+        choice keymap-source {
+          mandatory true;
+          leaf source-node {
+            type schema-node-id;
+            description
+              "The leaf data node within the source model that
+               maps to the key-node in this keymap.";
+          }
+          leaf source-constant {
+            type string;
+            description
+              "The constant value to use for the mapping to
+               the key-node.";
+          }
+        }
+      }
+    }
+
+
+    grouping nodemap {
+      list nodemap {
+        key "source-node";
+        leaf source-node {
+          type schema-node-id;
+          description
+            "Identifies the source data node for this model map.";
+        }
+        leaf target-node {
+          type schema-node-id;
+          mandatory true;
+          description
+            "Identifies the target data node for this model map.";
+        }
+
+        container target-keys {
+          description
+            "Contains the target model keymaps to be used when
+             converting from source to target.";
+          uses keymap;
+        }
+
+        leaf auto-map {
+          type boolean;
+          default true;
+          description
+            "If 'true' then a child node will be mapped
+             to a target child node with the same name
+             automatically.  If 'false' then explicit childmap
+             entries are required for mapped nodes with the same
+             name.";
+        }
+        list childmap {
+          description
+            "Represents a child node mapping within a parent
+             container or list data node. Do not include nested
+             complex objects that have their own nodemap entry.";
+          key source-child;
+          leaf source-child {
+            type child-node-name;
+            description
+              "The name of the child node within the source-node
+               that corresponds to this entry. If the node is
+               from a different module than the source-node,
+               the module name can be present in the name string.
+
+               If this child represents a complex node instead
+               of a terminal node, then a separate mapping for
+               this node (i.e., source-node represents this node)
+               should be present in the nodemap.";
+          }
+          leaf target-node {
+            type schema-node-id;
+            description
+              "If present, then there is a hard-wired mapping
+               from the source data node to a specific target
+               data node. This string represents the name of
+               the child node within the target-node.
+
+               If not present, then the source-child node is not
+               used within the target-node (i.e., auto-map
+               is ignored for the source-child).";
+          }
+        }
+      }
+    }
+
+    grouping yangmap {
+      container yangmap {
+        description
+          "Model mapping control block parameters to allow
+           different user-facing and instrumentation-facing
+           data models.";
+        leaf-list source-module {
+          type yt:NcxName;
+          description
+            "Contains the module name for a source model
+             module that needs to be loaded to support this
+             YANG mapping.";
+        }
+        leaf-list target-module {
+          type yt:NcxName;
+          description
+            "Contains the module name for a target model
+             module that needs to be loaded to support this
+             YANG mapping.
+
+             When a session is started, all modules advertised
+             by the server will be checked and if all modules
+             listed here are present, then this yangmap will
+             be enabled for the session.  If the yangmap
+             is not valid (e.g., deviations or features from
+             server do not match the expected values for this
+             yangmap) then an error message will be printed
+             and the yangmap will not be used for the session.";
+        }
+        uses nodemap;
+      }
+    }
+
+    rc:yang-data yangmap {
+      uses yangmap;
+    }
+
+}

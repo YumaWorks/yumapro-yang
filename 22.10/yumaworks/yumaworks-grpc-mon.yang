@@ -1,0 +1,246 @@
+module yumaworks-grpc-mon {
+  yang-version 1.1;
+  namespace "http://yumaworks.com/ns/yumaworks-grpc-mon";
+  prefix "ypgrpcm";
+
+  import ietf-yang-types { prefix yang; }
+  import ietf-inet-types { prefix inet; }
+  import yumaworks-extensions { prefix ywx; }
+  import ietf-netconf-acm { prefix nacm; }
+
+  organization "YumaWorks, Inc.";
+
+  contact
+    "Support <support at yumaworks.com>";
+
+  description
+    "gRPC Monitoring Module.
+     All elements in this module are read-only.
+
+     Copyright (c) 2014 - 2021 YumaWorks, Inc. All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject
+     to the license terms contained in, the BSD 3-Clause License
+     http://opensource.org/licenses/BSD-3-Clause";
+
+  revision 2022-01-10 {
+    description "Fix sil-aio-get2 extension usage";
+  }
+
+  revision 2021-08-23 {
+    description "Initial version";
+  }
+
+  container grpc-state {
+    config false;
+    description
+      "The grpc-state container is the root of the monitoring
+       data model.";
+
+
+    container statistics {
+      ywx:sil-aio-get2 "val";
+      description
+        "The statistics container contains information about
+         Client and Server streams total statistics.";
+
+      leaf active-server-streams {
+        type yang:zero-based-counter32;
+        description
+          "Number of active Server Streams for the gRPC server.";
+      }
+      leaf active-client-streams {
+        type yang:zero-based-counter32;
+        description
+          "Number of active Client Streams for the gRPC server.";
+      }
+      leaf total-active-streams {
+        type yang:zero-based-counter32;
+        description
+          "Total number of active Client and Server Streams for
+           the gRPC server.";
+      }
+      leaf total-closed-streams {
+        type yang:zero-based-counter32;
+        description
+          "Total number of closed Client and Server Streams for
+           the gRPC server.";
+      }
+    }
+
+    list server {
+      key name;
+      ywx:sil-aio-get2 "val";
+      description
+        "Statistical data pertaining to the list of gRPC server(s).";
+
+      leaf name {
+        type string;
+        description
+          "Name of the gRCP server also used as gRPC Subsystem identifier.";
+      }
+
+      leaf address {
+        type inet:host;
+        mandatory true;
+        description
+          "IP Address or host name for the gRPC server.
+           The value returned is implementation specific
+           (e.g., hostname, IPv4 address, IPv6 address)";
+      }
+
+      leaf port {
+        type inet:port-number;
+        description
+          "TCP port number for the gRPC server.
+           If not present then the default port for
+           the protocol will be used.";
+      }
+
+      leaf start-time {
+        type yang:date-and-time;
+        description
+          "Date and time at which gRPC Server was started.";
+      }
+
+      leaf-list proto {
+        type string;
+        description
+          "The list of proto files that gRPC server supports.";
+      }
+
+      leaf active-server-streams {
+        type yang:zero-based-counter32;
+        description
+          "Number of active Server Streams for the gRPC server.";
+      }
+      leaf active-client-streams {
+        type yang:zero-based-counter32;
+        description
+          "Number of active Client Streams for the gRPC server.";
+      }
+      leaf closed-streams {
+        type yang:zero-based-counter32;
+        description
+          "Total number of closed Client and Server Streams for
+           the gRPC server.";
+      }
+
+      container services {
+        description
+          "Contains the list of gRPC Services.";
+
+        list service {
+          key name;
+          description
+            "List of gRPC Services supported by the gRPC server and
+             related information.";
+
+          leaf name {
+            type string;
+            description
+              "Name of the gRCP Service associated with this list entry.";
+          }
+
+          list method {
+            key name;
+            description
+              "The list of methods supported by the gRPC server and
+               related information.";
+
+            leaf name {
+              type string;
+              description
+                "Name of the Service Method associated with this list entry.";
+            }
+            leaf client-streaming {
+              type boolean;
+              description
+                "True if the client supports streaming for this method
+                 False otherwise.";
+            }
+            leaf server-streaming {
+              type boolean;
+              description
+                "True if the server supports streaming for this method.
+                 False otherwise.";
+            }
+          }
+        }
+      }
+    }
+
+    container server-streams {
+      presence "Presence Container";
+      ywx:sil-aio-get2 "val";
+      description
+        "Container representing open gRPC server streams.";
+
+      list stream {
+        key name;
+        description
+          "Each entry describes an open gRPC server stream.";
+
+        leaf name {
+          type string;
+          description
+            "Name of a gRCP server stream.";
+        }
+
+        leaf creation-time {
+          type yang:date-and-time;
+          description
+            "Indicates the time the server stream was created.";
+        }
+
+        leaf location {
+          type inet:uri;
+          mandatory true;
+          description
+            "Contains a URL that represents the RPC that uses
+             this server stream.";
+        }
+      }
+    }
+
+    container client-streams {
+      presence "Presence Container";
+      ywx:sil-aio-get2 "val";
+      description
+        "Container representing open gRPC client streams.";
+
+      list stream {
+        key name;
+        description
+          "Each entry describes an open gRPC client stream.";
+
+        leaf name {
+          type string;
+          description
+            "Name of a gRCP client stream.";
+        }
+
+        leaf creation-time {
+          type yang:date-and-time;
+          description
+            "Indicates the time the client stream was created.";
+        }
+
+        leaf location {
+          type inet:uri;
+          mandatory true;
+          description
+            "Contains a URL that represents the RPC that uses
+             this client stream.";
+        }
+      }
+    }
+  }
+
+  rpc grpc-shutdown {
+    description
+      "Shutdown the gRPC server.";
+    nacm:default-deny-all;
+  }
+}

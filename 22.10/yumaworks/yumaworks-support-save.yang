@@ -1,0 +1,112 @@
+module yumaworks-support-save {
+  yang-version 1.1;
+  namespace "urn:ietf:params:xml:ns:yang:yumaworks-support-save";
+  prefix "yss";
+
+  import ietf-netconf-acm { prefix nacm; }
+
+  organization "YumaWorks, Inc.";
+
+  contact
+    "Support <support@yumaworks.com>";
+
+  description
+    "This module contains the <get-support-save> operation
+     and the support-save-data yang-data structure.
+     The top-level containers are registered in ncx/support_save
+     and implemented in agt/agt_support_save.c
+
+     No duplicate local-names are allowed in the top-level child
+     nodes of the support-save-data anydata container.
+
+     Structure of the support-save-data (can change over time):
+
+     container support-save-data {
+
+      container bundles {
+        list bundle {
+          leaf name { type string; }
+          leaf-list deviation { type string; }
+          leaf-list module { type string; }
+        }
+      }
+
+      container capabilities ->
+        /ietf-netconf-monitoring:netconf-state/capabilities
+
+      container config-data {
+        container *name* (e.g. candidate) {
+          anydata config;
+        }
+      }
+
+      container datastores ->
+         /ietf-netconf-monitoring:netconf-state/datastores
+
+      container modules-state -> /ietf-yang-library:modules-state
+
+      container modules-text {
+        list module {
+          leaf name { type string; }
+          leaf revision { type string; }
+          leaf source { type string; }
+          leaf submodule { type empty; }
+          leaf text { type string; }
+        }
+      }
+
+      container program {
+        leaf name { type string; }
+        leaf version { type string; }
+      }
+
+      container sessions ->
+         /ietf-netconf-monitoring:netconf-state/sessions
+
+      container sils {
+        list sil {
+          leaf name { type string; }
+          leaf revision { type string; }
+          leaf bundle { type empty; }
+          leaf sil-sa { type empty; }
+        }
+      }
+
+      container system -> /yuma-system:system container
+     }
+
+   ";
+
+  revision 2022-05-19 {
+    description
+       "Remove support-data-save since not needed and causes
+        pyang error";
+  }
+
+  revision 2017-07-27 {
+    description
+       "Initial version";
+  }
+
+  rpc get-support-save {
+    nacm:default-deny-all;
+    output {
+      uses support-save-data;
+    }
+    description
+      "Retrieve the support-save info from the server.
+       Save the output to an XML file and attach to
+       a bug report. Send with a complete description
+       of the issue to support@yumaworks.com.
+
+       yangcli-pro Example:
+
+       session1> @server-issue.xml = get-support-save
+      ";
+  }
+
+  grouping support-save-data {
+    anydata support-save-data;
+  }
+
+}
