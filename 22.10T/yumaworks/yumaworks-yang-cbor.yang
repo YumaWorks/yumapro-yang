@@ -1,0 +1,214 @@
+module yumaworks-yang-cbor {
+    yang-version 1.1;
+    namespace "urn:yumaworks:params:xml:ns:yang:yumaworks-yang-cbor";
+    prefix "ycbor";
+
+    import ietf-subscribed-notifications { prefix sn; }
+    import ietf-sid-file { prefix sid; }
+    import ietf-yang-types { prefix yang; }
+    import yumaworks-types { prefix ywt; }
+
+    organization "YumaWorks, Inc.";
+
+    contact
+        "Support <support@yumaworks.com>";
+
+    description
+         "YumaPro Additions for YANG-to-CBOR encoding.
+
+          +--ro yang-sid-info!
+             +--ro sid-set-id?          sid-set-id
+             +--ro yang-sid-mode?       ywt:yang-sid-mode
+             +--ro lsid-size?           ywt:lsid-size
+             +--ro current-sid-max?     sid:sid
+             +--ro current-sid-count?   sid:sid
+
+          rpcs:
+            +---x get-yang-sid-data
+               +---w input
+               |  +---w lower-bound?       sid:sid
+               |  +---w upper-bound?       sid:sid
+               +--ro output
+                  +--ro current-set-id?   sid-set-id
+                  +--ro data
+                     +--ro sid-item* [sid]
+                        +--ro sid            sid:sid
+                        +--ro namespace?     enumeration
+                        +--ro module-name?   string
+                        +--ro identifier?    union
+
+
+     Copyright (c) 2022, YumaWorks, Inc. All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject
+     to the license terms contained in, the BSD 3-Clause License
+     http://opensource.org/licenses/BSD-3-Clause";
+
+    revision 2022-05-21 {
+       description
+         "Initial version";
+    }
+
+    typedef sid-set-id {
+      type string {
+        length "1 .. 512";
+      }
+      description
+        "Arbitrary string token associated with a set of SID assignments
+         (e.g., within a server). This can be used to avoid unneeded
+         retrieval of the server SID assignment information.";
+    }
+
+    identity encode-yang-cbor {
+      base sn:encoding;
+      description
+        "Encode data using YANG to CBOR encoding with SID identifiers.";
+      reference
+        "RFC 8949: Concise Binary Object Representation (CBOR);
+         draft-ietf-core-yang-cbor-20: CBOR Encoding of Data Modeled with YANG;
+         draft-ietf-core-sid-18:  YANG Schema Item iDentifier (YANG SID)";
+    }
+
+    container yang-sid-info {
+        config false;
+        presence
+          "If present, then the YANG CBOR is built into the server
+           and this encoding is enabled in the server (e.g., the
+           --with-yang-cbor CLI parameter is set to 'true').";
+        description
+          "Contains YANG CBOR monitoring information.";
+
+        leaf sid-set-id {
+          type sid-set-id;
+          description
+            "The current SID set identifier for the server.";
+        }
+
+        leaf yang-sid-mode {
+          type ywt:yang-sid-mode;
+          description
+            "The YANG SID mode used within the server, which will
+             indicate whether the server SID assignments are
+             derived from SID files or from internal LSID assignment.";
+        }
+
+        leaf lsid-size {
+          type ywt:lsid-size;
+          description
+            "The size of an LSID identifier within the server.
+             This value is set at build-time and will not change
+             at runtime within the server.";
+        }
+
+        leaf current-sid-max {
+          type sid:sid;
+          description
+            "The current largest value of any SID assignment used
+             within the server. This includes internal SID
+             assignments that are not available for retrieval.";
+        }
+
+        leaf current-sid-count {
+          type uint64;
+          description
+            "The current number of SID assignments used
+             within the server. This includes internal SID
+             assignments that are not available for retrieval.";
+        }
+    }
+
+    rpc get-yang-sid-data {
+      description
+        "Retrieve SID assignment information from the server.
+         If the /yang-sid-info container is not present in the server,
+         then an error will be returned instead any SID data.
+
+         -  The lower-bound and upper-bound parameters can be used
+            to retrieve a subset of all SID assignments.
+
+         -  Only items from modules listed in the YANG library
+            are returned.  SID assignments for schema items
+            used internally within the server are not returned.
+
+        ";
+
+      input {
+        leaf lower-bound {
+          type sid:sid;
+          description
+            "If present then only SID assignments that are greater
+             or equal to this value will be returned.
+
+             If this parameter is not present then no lower-bound
+             will be checked when returning SID values.";
+        }
+
+        leaf upper-bound {
+          type sid:sid;
+          description
+            "If present then only SID assignments that are less than
+             or equal to this value will be returned.
+
+             If this parameter is not present then no upper-bound
+             will be checked when returning SID values.";
+        }
+      }
+
+      output {
+        leaf current-set-id {
+          type sid-set-id;
+          description
+            "The current SID set identifier in use by the server.";
+        }
+
+        container data {
+          description
+            "The requested SID assignments are returned here.";
+
+          list sid-item {
+            key sid;
+            description
+              "SID item similar to the SID file item list";
+
+            leaf sid {
+              type sid:sid;
+              description
+                "YANG SID assigned to the YANG item";
+            }
+
+            leaf namespace {
+              type enumeration {
+                enum module;
+                enum identity;
+                enum feature;
+                enum data;
+              }
+              description
+                "Namespace ID from the ietf-sid-file module.";
+            }
+
+            leaf module-name {
+              type string;
+              description
+               "Name of the module containing this SID mapping.
+                This object is not present for items if the namespace
+                is set to 'module'";
+            }
+
+            leaf identifier {
+              type union {
+                type yang:yang-identifier;
+                type sid:schema-node-path;
+              }
+              description
+               "String identifier of the YANG item for this mapping
+                entry, from the ietf-sid-file module.";
+            }
+          }
+        }
+      }
+    }
+
+
+}
