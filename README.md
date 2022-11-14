@@ -11,8 +11,9 @@ YumaWorks maintains multiple release trains to increase stability.
 Each October a new release train is started. (e.g. 20.10, 21.10).
 
  - YumaPro SDK Release Trains
-     - 21.10: stable (current)
-     - 21.10T: unstable
+     - 21.10: oldstable
+     - 22.10: stable (current)
+     - 22.10T: unstable
 
 [YumaPro Release Information](https://www.yumaworks.com/features/yumapro-sdk-release-information/)
 
@@ -27,7 +28,7 @@ Each October a new release train is started. (e.g. 20.10, 21.10).
 Use the git checkout command. Example: Checkout the 20.10-13 release on branch 'my-branch'
 
 
-     > git checkout tags/20.10-13 -b my-branch
+     > git checkout tags/21.10-3 -b my-branch
 
 
 ## YumaWorks YANG Modules
