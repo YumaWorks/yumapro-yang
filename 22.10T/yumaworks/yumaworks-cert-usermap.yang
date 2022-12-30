@@ -46,13 +46,11 @@ module yumaworks-cert-usermap {
          hex-string. The first byte in the hex-string is
          the hashing algorithm identifier.
          The server does not use this value for any purpose.
-         Any valid value defined in 'TLS HashAlgorithm
-         Registry' (RFC 5246) is accepted.
-         These values are listed here.
+         The following values defined in 'TLS HashAlgorithm
+         Registry' (RFC 5246) are accepted:
 
            Registry value       First Octet
            --------------       -----------
-           - none(0)             00
            - md5(1)              01
            - sha1(2)             02
            - sha224(3)           03
