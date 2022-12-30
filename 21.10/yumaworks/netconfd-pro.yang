@@ -966,6 +966,14 @@ module netconfd-pro {
 
              'openssl x509 -noout -fingerprint -sha1 -inform pem
                -in [certificate-file.crt]'
+
+            The Hash Type SHA-1 (the -sha1 parameter in this example)
+            must be used for this parameter.
+
+            This fingerprint string is not the same format as
+            the 'tls-fingerprint' type defined in the
+            ietf-x509-cert-to-name module.  This string does not
+            have any hash type octet to start the string.
            ";
         type string;
       }
