@@ -29,12 +29,17 @@ module netconfd-pro {
         This module is not advertised by the server.
         It contains only CLI parameters.
 
-     Copyright (c) 2010 - 2022 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2010 - 2023 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+    revision 2023-03-06 {
+      description
+        "22.10-6: Add --tcp-connect-timeout parameter.";
+    }
 
     revision 2022-11-26 {
       description
@@ -637,6 +642,8 @@ module netconfd-pro {
       uses ywapp:LoadPathParm;
 
       uses ncxapp:SubdirsParm;
+
+      uses ywapp:TcpConnectParms;
 
       uses ncxapp:ProtocolsParm;
 
