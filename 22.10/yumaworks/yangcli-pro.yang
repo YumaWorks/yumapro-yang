@@ -72,6 +72,12 @@ module yangcli-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+     revision 2023-03-15 {
+       description
+         "22.10-7: Add rawrpc command.
+                   Add export case to test-suite command.";
+     }
+
      revision 2023-03-06 {
        description
          "22.10-6: Add --tcp-connect-timeout parameter.";
@@ -3238,6 +3244,41 @@ module yangcli-pro {
       description "Quit the yangcli-pro application";
     }
 
+    rpc rawrpc {
+       description
+         "Added 22.10-7:
+          Provide low-level command to send complete RPC request
+          message as an <rpc> request to the server.
+
+          Cannot have an output section or OK is not allowed.
+          RPC methods with output may cause a warning when the
+          response is received.
+
+          There are 3 forms of this command allowed:
+
+            - rawrpc @somefile.xml
+            - rawrpc rpc=@somefile.xml
+            - rawrpc rpc=<inline XML>
+         ";
+
+      input {
+        anydata rpc {
+          mandatory true;
+          description
+            "Represents the <rpc> container node for the RPC request.
+
+             The entire 'rpc' container is expected, not the children.
+             The message will be sent to the server as-is.
+             No usual logging and processing will be possible for
+             this operation.
+
+             The XML (from file or inline XML) is sent to the server
+             'as-is', without converting it to an internal data
+             structure first.";
+        }
+      }
+    }
+
     rpc recall {
        description
          "Recall the specified command line history
@@ -4251,7 +4292,7 @@ module yangcli-pro {
           case start-case {
             leaf start {
               type empty;
-              mandatory true;
+              //mandatory true;
               description
                 "Start recording for the specified test.";
             }
@@ -4318,7 +4359,8 @@ module yangcli-pro {
       input {
         leaf suite-name {
           type nt:NcxIdentifier;
-          must "../delete or ../delete-test";
+          must "../delete or ../delete-test" +
+               " or ../export or ../export-file";
           description
             "The name of the test-suite that contains the test
              being recorded. Used for start, delete, and
@@ -4365,8 +4407,8 @@ module yangcli-pro {
               type IdentifierOrZero;
               default "";
               description
-                "Show the specified test-suite or the current
-                 test-suite if an empty string is entered.";
+                "Show the specified test-suite or all
+                 test-suites if an empty string is entered.";
             }
             uses ncxapp:HelpMode;
           }
@@ -4399,6 +4441,31 @@ module yangcli-pro {
               "Save the current test-suite configuration to the
                specified (or default) config file.";
           }
+
+          case export-case {
+            leaf export {
+              type empty;
+              description
+                "If the 'export-file' parameter is not present
+                 then export to the default file name.";
+            }
+            leaf export-file {
+              type string;
+              description
+                "Export the specified test-suite configuration
+                 and data for use in a different test tool.
+                 The 'test-suite' paramer must be present.
+
+                 This parameter specifies the output filespec
+                 for the exported test-suite.
+
+                 Currently the only format is the proprietary
+                 'yangcli' format.  Added to 22.10-7";
+            }
+
+            // TBD: export-format leaf
+          }
+
         }
       }
     }

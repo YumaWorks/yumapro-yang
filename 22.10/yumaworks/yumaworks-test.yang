@@ -3,7 +3,7 @@ module yumaworks-test {
   namespace "http://yumaworks.com/ns/yumaworks-test";
 
   prefix "ywtest";
-  
+
   import yuma-types { prefix yt; }
   import yumaworks-extensions { prefix ywx; }
 
@@ -13,66 +13,71 @@ module yumaworks-test {
     "Support <support@yumaworks.com>";
 
   description
-    "This module contains data structures representing 
+    "This module contains data structures representing
      replayable test suites for specific use cases and YANG modules
 
-        +---------------------+ 
+        +---------------------+
       +-+------------------+  |
       |                    |  |
       |     Test Suite     |  |
-      |                    |--+ 
+      |                    |--+
       +--------------------+
        |          |
        |          |
        |          V
-       |    +---------------------+ 
+       |    +---------------------+
        |  +-+------------------+  |
        |  |                    |  |
        |  |        Test        |  |
-       |  |                    |--+ 
+       |  |                    |--+
        |  +--------------------+
        |          |
        |          |
        |          V
-       |      +---------------------+ 
+       |      +---------------------+
        |    +-+------------------+  |
        |    |                    |  |
        |    |        Step        |  |
-       |    |                    |--+ 
+       |    |                    |--+
        |    +--------------------+
        |
        V
-      +---------------------+ 
+      +---------------------+
     +-+------------------+  |
     |                    |  |
     |      Servers       |  |
-    |                    |--+ 
+    |                    |--+
     +--------------------+
               |
               |
               V
-        +---------------------+ 
+        +---------------------+
       +-+------------------+  |
       |                    |  |
       |      Sessions      |  |
-      |                    |--+ 
+      |                    |--+
       +--------------------+
 
 
-     Copyright (c) 2013 - 2014 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2013 - 2023 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+  revision 2023-03-16 {
+    description
+       "Add message-indent parameter";
+  }
+
   revision 2013-03-31 {
-    description 
+    description
        "Rename to yumaworks-test";
   }
 
   revision 2013-01-21 {
-    description 
+    description
        "Initial version";
   }
 
@@ -91,7 +96,7 @@ module yumaworks-test {
         description "Expecting an rpc-error reply.";
       }
     }
-    description 
+    description
       "The type of response expected from the server
        for this request.";
   }
@@ -131,7 +136,15 @@ module yumaworks-test {
           "The ordered list of test names to run in this test suite.
            At least 1 test must be specified.";
       }
-        
+
+      leaf message-indent {
+        type int8 {
+          range "-1 .. 9";
+        }
+        default 2;
+        description "message-indent used for the test.";
+      }
+
       list test {
         description
           "The unit-tests that are configured to be run.
@@ -157,7 +170,7 @@ module yumaworks-test {
             run and pased for this test to be attempted,
             The test will be skipped if any test in the
             must-pass list has been attempted and the
-            test failed. 
+            test failed.
 
             If the named test has not been run yet
             this test will fail and be skipped.  If the named
@@ -187,7 +200,7 @@ module yumaworks-test {
           leaf session-name {
             type yt:NcxName;
             description
-             "The name of the session to use. 
+             "The name of the session to use.
               Empty if the test session should be used";
           }
 
@@ -201,7 +214,7 @@ module yumaworks-test {
           leaf result-error-tag {
             when "../result-type = 'error'";
             type string;
-            description 
+            description
               "The error-tag value expected if the result-type
                is 'error'.  If not set, then any error-tag
                value is acceptable.";
@@ -210,7 +223,7 @@ module yumaworks-test {
           leaf result-error-apptag {
             when "../result-type = 'error'";
             type string;
-            description 
+            description
               "The error-app-tag value expected if the result-type
                is 'error'.  If not set, then any error-app-tag
                value is acceptable.";
@@ -219,7 +232,7 @@ module yumaworks-test {
           leaf-list result-error-info {
             when "../result-type = 'error'";
             type yt:NcxName;
-            description 
+            description
               "The error-info element name expected if the result-type
                is 'error'.";
           }
@@ -247,5 +260,3 @@ module yumaworks-test {
 
 
 }
-
-

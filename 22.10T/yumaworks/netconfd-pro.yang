@@ -36,6 +36,11 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2023-03-21 {
+      description
+        "22.10-7: Add --max-lock-hold-time parameter.";
+    }
+
     revision 2023-03-06 {
       description
         "22.10-6: Add --tcp-connect-timeout parameter.";
@@ -1603,6 +1608,60 @@ module netconfd-pro {
            GET2 callbacks";
         type uint32;
         default 10;
+      }
+
+      leaf max-lock-hold-time {
+        description
+          "Specifies the maximum number of seconds to allow a
+           session to hold a global NETCONF datastore lock.
+
+           If zero, then no maximum lock hold time will be used.
+           This is the behavior specified by RFC 6241.
+
+           If non-zero, then the standard will not be followed.
+           Instead, a global lock will be released if held by
+           a session too long.  This timeout only applies to
+           the 'lock' operation.  Partial locks are not affected
+           at all by this parameter.
+
+           If a lock is released, then the locking session will
+           not be warned or notified in anyway.  An 'info' log entry
+           is generated such as:
+
+               Max Lock Hold Time timeout for datastore running
+               Locked by session 3 at 2023-03-21T23:35:55Z
+
+           If a session has an active notification subscription,
+           or if the client sends at least one request periodically,
+           then the '--idle-timeout' parameter will not be enforced.
+           It is possible for a NETCONF session to hold a global
+           datastore lock indefinitely.
+
+           This parameter allows the datastore lock time to be
+           configured so it does not depend on the '--idle-timeout'
+           parameter setting.
+
+           Using this parameter with a value greater than zero
+           will violate RFC 6241 procedures for the 'lock'
+           operation. A minimum lock hold time of 5 seconds is
+           allowed.
+
+             - If a timeout occurs the datastore lock will be
+               dropped, but the session will not be dropped.
+
+             - If an edit is in progress, it will not be
+               affected. Only the NETCONF lock will be
+               released.
+
+            -  The server will output an 'info' log message
+               if a datastore lock is released by the server
+               due to the lock hold time exceeding this value.
+         ";
+        type uint16 {
+          range "0 | 5 .. max";
+        }
+        units seconds;
+        default 0;
       }
 
       leaf max-sessions {
