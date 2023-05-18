@@ -19,6 +19,11 @@ module yumaworks-extensions {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+  revision 2023-04-19 {
+    description
+       "Add sil-xpath-function extension.";
+  }
+
   revision 2021-12-14 {
     description
        "Update sil-aio-get2 extension. Remove reference to default values.";
@@ -446,4 +451,59 @@ module yumaworks-extensions {
        There is no parameter for this extension.
       ";
   }
+
+  extension sil-xpath-function {
+    description
+      "Used within a configuration data node definition
+       statement to define the YANG XPath Callback function
+       for the object.
+
+       It can also be added to a node using an annotation.
+       This extension affects only the node containing the
+       extension. The following data nodes are supported:
+
+         - container
+         - list
+         - leaf
+         - leaf-list
+         - anydata
+         - anyxml
+
+       Other data definition statements are allowed to have
+       must or when statements but the context node will
+       be one of the types listed above.  The callback function
+       is invoked any time the data node containing this extension
+       is used as the context node for a must/when XPath evaluation.
+
+       This callback can be used to replace real must/when
+       XPath expression evaluation, in case the constraint
+       is enforced by the SIL code or can be checked internally
+       by the SIL code.  It is intended to speed up or prune XPath
+       evaluation for a data node object.
+
+       The 'parmstr' argument must be present, and contain the
+       callback function name to be used in the SIL code generation
+       by yangdump-pro.  This function is expected to exist
+       and be present in the H files included by the SIL code module.
+
+       If the 'parmstr' argument contains the special value 'default',
+       then an XPath callback function will be generated using the
+       identifier assigned to that data node.  This stub function will
+       return 'ERR_NCX_SKIPPED' by default.  It must be completed
+       by a programmer in order to have any affect.
+
+       The callback function must conform to the
+       'xpath_bool_eval_fn_t' typedef defined in ncx/xpath.h.
+
+       Example:
+
+           leaf foo {
+             ywx:sil-xpath-function 'foo_xpath_callback';
+             type string;
+             must 'some expr';
+           }
+      ";
+    argument parmstr;
+  }
+
 }

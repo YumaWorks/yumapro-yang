@@ -36,6 +36,17 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2023-05-12 {
+      description
+         "22.10-8:
+          -  Add --with-error-number parameter
+          -  Add --with-yumaworks-lock parameter
+          -  Add --sil-cc-callback-all parameter
+          -  Change with-yang11-hello default to true for
+             standards compliance
+         ";
+    }
+
     revision 2023-03-21 {
       description
         "22.10-7: Add --max-lock-hold-time parameter.";
@@ -124,7 +135,7 @@ module netconfd-pro {
 
     revision 2020-08-16 {
       description
-        "Add YANG Push paameters:
+        "Add YANG Push parameters:
            --push-max-operational
            --push-max-periodic
            --push-min-dampening
@@ -2050,6 +2061,44 @@ module netconfd-pro {
            if supported.";
       }
 
+      leaf sil-cc-callback-all {
+        description
+          "If 'true', the server will invoke Commit Completeness
+           callbacks for all edit transactions, not just for
+           the <commit> operation. The following operations
+           will cause Commit Completeness callbacks to be invoked:
+
+           - <commit>
+           - <copy-config>
+           - <edit-config>
+           - <load-config>  (internal boot)
+           - <load-config>  (confirmed commit timeout)
+           - <restore>
+           - <validate>
+
+           All Commit Completeness callbacks are invoked
+           if the target is the <running> datastore.
+
+           The Validate Complete Callback is invoked for
+           the <candidate> datastore only if the
+           --sil-validate-candidate parameter is set to 'true'.
+
+           The Apply Complete, Commit Complete, and Rollback Complete
+           callbacks are only invoked if the target is the
+           <running> datastore.
+
+           The callback input parameters may be different for
+           each operation. Refer to the YumaPro Developer
+           Manual for details.
+
+           If 'false', the server will invoke Commit Completeness
+           callbacks only for the <commit> operation.
+
+           Introduced in 22.10-8.";
+        type boolean;
+        default false;
+      }
+
       leaf sil-delete-children-first {
         description
           "If 'true', the server default behavior will be to
@@ -2707,6 +2756,21 @@ module netconfd-pro {
         default false;
       }
 
+      leaf with-error-number {
+        description
+          "If set to 'true', then the <error-info> element
+           will include the proprietary <error-number> element.
+
+           If set to 'false', then the <error-info> element
+           will not include the proprietary <error-number> element.
+
+           This leaf corresponds to the error status enumerations
+           defined in 'status_enum.h'.
+          ";
+        type boolean;
+        default true;
+      }
+
       leaf with-maintenance-mode {
         description
           "If set to 'true', then allow the maintenance mode
@@ -2997,7 +3061,7 @@ module netconfd-pro {
            will not be enabled. The incoming connection will be
            dropped if the protocol is disabled.";
         type boolean;
-        // default true;  !! NOW DEPRECATED !!
+        // default true;  !! NOW OBSOLETE !!
         default false;
         status deprecated;
       }
@@ -3010,9 +3074,12 @@ module netconfd-pro {
            from <capability> used in <hello>. Also keep out of
            monitoring <capabilities> list.
            If 'false' then ignore the standard and advertise
-           YANG 1.1 module capabilities";
+           YANG 1.1 module capabilities.
+
+           Changed default to true in 22.10T-8 for RFC 7950
+           compliance.";
         type boolean;
-        default false;
+        default true;
       }
 
       leaf with-yang-patch-running {
@@ -3117,6 +3184,16 @@ module netconfd-pro {
            be loaded and enabled. Otherwise, this module will not be
            loaded. If disabled the <get-bulk> operation will not
            be available.";
+        type boolean;
+        default true;
+      }
+
+      leaf with-yumaworks-lock {
+        description
+          "If set to 'true', then the yumaworks-lock module will
+           be loaded and enabled. Otherwise, this module will not be
+           loaded. If disabled the <lock-all> and <unlock-all>
+           operations will not be available.";
         type boolean;
         default true;
       }
