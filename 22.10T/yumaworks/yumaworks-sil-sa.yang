@@ -25,6 +25,11 @@ module yumaworks-sil-sa {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+  revision 2023-06-16 {
+    description
+       "Add edit-phase-complete boolean leaf";
+  }
+
   revision 2023-02-19 {
     description
        "Add revision leaf to register container in <register-request>
@@ -269,6 +274,12 @@ module yumaworks-sil-sa {
         type empty;
         description
           "The leaf specifies if there is a Rollback
+           Complete Callback to register";
+      }
+      leaf edit-phase-complete {
+        type empty;
+        description
+          "The leaf specifies if there is an Edit Phase
            Complete Callback to register";
       }
     }
