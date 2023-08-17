@@ -18,7 +18,7 @@ module netconfd-pro {
 
     import ietf-inet-types { prefix inet; }
 
-    import ietf-restconf { prefix rc; }
+    import ietf-yang-structure-ext { prefix sx; }
 
     organization  "YumaWorks, Inc.";
 
@@ -35,6 +35,14 @@ module netconfd-pro {
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+    revision 2023-08-04 {
+      description
+        "22.10T-11:
+         -  Change CLI parameters to use sx:structure;
+            rc:yang-data is deprecated
+        ";
+    }
 
     revision 2023-05-12 {
       description
@@ -3331,10 +3339,9 @@ module netconfd-pro {
 
     }
 
-    rc:yang-data ncparms {
-      container netconfd-pro {
-        ncx:cli;
-        uses netconfd-pro-parms;
-      }
+    sx:structure netconfd-pro {
+      ncx:cli;
+      uses netconfd-pro-parms;
     }
+
 }

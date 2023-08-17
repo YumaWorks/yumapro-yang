@@ -14,6 +14,8 @@ module yangcli-pro {
 
     import ietf-netconf-with-defaults { prefix wd; }
 
+    import ietf-yang-structure-ext { prefix sx; }
+
     import yuma-ncx { prefix ncx; }
 
     import yuma-app-common { prefix ncxapp; }
@@ -71,6 +73,11 @@ module yangcli-pro {
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+     revision 2023-08-04 {
+       description
+         "22.10T-11: Change CLI container to sx:structure";
+     }
 
      revision 2023-03-15 {
        description
@@ -1031,7 +1038,7 @@ module yangcli-pro {
      *
      *************************************************************/
 
-    container yangcli-pro {
+    sx:structure yangcli-pro {
       ncx:cli;
 
       description
@@ -4840,7 +4847,7 @@ module yangcli-pro {
 
     uses VarsContainer;
 
-    container saved-devices {
+    sx:structure saved-devices {
        ncx:abstract;
        description
          "Represents all the saved devices in
@@ -4902,7 +4909,7 @@ module yangcli-pro {
     }
 
 
-    container saved-sessions {
+    sx:structure saved-sessions {
       ncx:abstract;
       description
         "Represents all the saved sessions in
@@ -5037,7 +5044,7 @@ module yangcli-pro {
       }
     }
 
-    container saved-schema-servers {
+    sx:structure saved-schema-servers {
       ncx:abstract;
       description
       "Represents all the saved schema-servers in
@@ -5071,7 +5078,7 @@ module yangcli-pro {
        }
     }
 
-    container saved-event-handlers {
+    sx:structure saved-event-handlers {
      ncx:abstract;
      description
        "Represents all the saved event-handlers in
@@ -5119,7 +5126,7 @@ module yangcli-pro {
       }
     }
 
-    container saved-users {
+    sx:structure saved-users {
      ncx:abstract;
      description
        "Represents all the saved users in
@@ -5216,7 +5223,7 @@ module yangcli-pro {
          to the running datastore in config mode.";
     }
 
-    container pipe {
+    sx:structure pipe {
       ncx:abstract;
       ncx:hidden;
 

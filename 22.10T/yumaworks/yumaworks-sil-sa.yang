@@ -4,6 +4,7 @@ module yumaworks-sil-sa {
 
   prefix "ysil";
 
+  import ietf-yang-structure-ext { prefix sx; }
   import yuma-types { prefix yt; }
   import yumaworks-types { prefix ywt; }
   import yumaworks-ycontrol { prefix yctl; }
@@ -24,6 +25,11 @@ module yumaworks-sil-sa {
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+  revision 2023-08-04 {
+    description
+      "22.10T-11: Change CLI container to sx:structure";
+  }
 
   revision 2023-06-16 {
     description
@@ -591,7 +597,8 @@ module yumaworks-sil-sa {
         "Specifies the Mount Point Instance for the request";
     }
 
-    augment "/yctl:ycontrol/yctl:message-payload/yctl:payload/yctl:payload" {
+    sx:augment-structure
+       "/yctl:ycontrol/yctl:message-payload/yctl:payload/yctl:payload" {
       container sil-sa {
 
         description
