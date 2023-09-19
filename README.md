@@ -50,19 +50,19 @@ netconfd-pro and not advertised to any client protocols.
 
 ## YumaWorks Software Packages
 
-### yumapro-client
+### yangcli-pro
 
-The [yumapro-client](https://www.yumaworks.com/support/download-yumapro-client/)
-package provides free tools such as **yangcli-pro** for managing NETCONF and RESTCONF servers.
-This package uses the 20.10 release train.
+The [yangcli-pro(https://dev.yumaworks.com/product/yangcli-pro/)
+package provides a program for managing NETCONF and RESTCONF servers.
+
 
 ### yumapro-sdk-basic
 
-The [yumapro-sdk-basic](https://www.yumaworks.com/support/download-yumapro-sdk-basic/)
+The [yumapro-sdk-basic](https://dev.yumaworks.com/product/yumapro-sdk-basic/)
 package provides a NETCONF Server and SDK for developing YANG server instrumentation.
-This package uses the 20.10 release train.
+
 
 ### yumabench
 
-The [yumabench](https://www.yumaworks.com/tools/yumabench/)
-package provides a Qt5-based GUI for managing NETCONF servers.
+The [yumabench](https://dev.yumaworks.com/product/yumabench/)
+package provides a Qt6-based GUI for managing NETCONF servers.
