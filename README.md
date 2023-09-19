@@ -52,7 +52,7 @@ netconfd-pro and not advertised to any client protocols.
 
 ### yangcli-pro
 
-The [yangcli-pro(https://dev.yumaworks.com/product/yangcli-pro/)
+The [yangcli-pro](https://dev.yumaworks.com/product/yangcli-pro/)
 package provides a program for managing NETCONF and RESTCONF servers.
 
 
