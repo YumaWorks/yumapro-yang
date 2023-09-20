@@ -5,31 +5,13 @@
 Contains the [YumaWorks](https://www.yumaworks.com)
 YANG modules used in YumaPro SDK software.
 
-## YumaPro Release Trains
+## Latest YumaPro Release
 
 YumaWorks maintains multiple release trains to increase stability.
-Each October a new release train is started. (e.g. 20.10, 21.10).
+Each October a new release train is started. (e.g. 22.10, 23.10).
 
- - YumaPro SDK Release Trains
-     - 21.10: oldstable
-     - 22.10: stable (current)
-     - 22.10T: unstable
-
-[YumaPro Release Information](https://www.yumaworks.com/features/yumapro-sdk-release-information/)
-
-### List the available tagged versions
-
-
-      > git tag
-
-
-### Checkout the YANG modules for a specific release:
-
-Use the git checkout command. Example: Checkout the 20.10-13 release on branch 'my-branch'
-
-
-     > git checkout tags/21.10-3 -b my-branch
-
+Only the latest version (34.10T) is maintained here.
+Use the modules included in the YumaPro package release for other release trains.
 
 ## YumaWorks YANG Modules
 
@@ -39,6 +21,9 @@ These YANG modules were originally developed for the yuma open-source project.
 Several of the metadata modules are still used.  Many of the modules in this
 directory have been replaced by standard versions of the module. They are
 maintained for archival purposes only, and not intended to be used.
+
+Note that some yumaworks modules import some modules from this directory.
+
 
 ### yumaworks
 
