@@ -4,10 +4,12 @@ module yumaworks-sil-sa {
 
   prefix "ysil";
 
+  import ietf-yang-structure-ext { prefix sx; }
   import yuma-types { prefix yt; }
   import yumaworks-types { prefix ywt; }
   import yumaworks-ycontrol { prefix yctl; }
   import yumaworks-agt-profile { prefix yprof; }
+  import yumaworks-schema-mount { prefix ysm; }
 
   organization "YumaWorks, Inc.";
 
@@ -17,13 +19,34 @@ module yumaworks-sil-sa {
   description
     "YumaPro SIL Sub-Agent message definitions.
 
-     Copyright (c) 2014 - 2022 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2014 - 2023 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+  revision 2023-08-04 {
+    description
+      "22.10T-11: Change CLI container to sx:structure";
+  }
+
+  revision 2023-06-16 {
+    description
+       "Add edit-phase-complete boolean leaf";
+  }
+
+  revision 2023-02-19 {
+    description
+       "Add revision leaf to register container in <register-request>
+        message.";
+  }
+
+  revision 2022-08-23 {
+    description
+       "Add MPID support for schema mount.
+        Change all anyxml to anydata to match usage.";
+  }
 
   revision 2022-04-05 {
     description
@@ -36,6 +59,12 @@ module yumaworks-sil-sa {
     description
       "Add event-path and event-key fields to the notification
        message to support nested YANG 1.1 event types.";
+  }
+
+  revision 2021-11-28 {
+    description
+      "Fix pyang compiler errors for this module.
+      'list needs at lest one key' messages";
   }
 
   revision 2021-10-28 {
@@ -253,6 +282,12 @@ module yumaworks-sil-sa {
           "The leaf specifies if there is a Rollback
            Complete Callback to register";
       }
+      leaf edit-phase-complete {
+        type empty;
+        description
+          "The leaf specifies if there is an Edit Phase
+           Complete Callback to register";
+      }
     }
 
     grouping operation-parms {
@@ -457,7 +492,7 @@ module yumaworks-sil-sa {
     }
 
     grouping return-val {
-      anyxml return-keys {
+      anydata return-keys {
         description
           "List of all ancestor or self key values for the
            object being retrieved, identified by the 'path'
@@ -465,7 +500,7 @@ module yumaworks-sil-sa {
            in each list.";
       }
 
-      anyxml values {
+      anydata values {
         description
           "Represents the retrieved values, if any.
            There will be one child node for each returned
@@ -530,7 +565,40 @@ module yumaworks-sil-sa {
       }
     }
 
-    augment "/yctl:ycontrol/yctl:message-payload/yctl:payload/yctl:payload" {
+    grouping schema-mount-parm {
+      leaf mounted {
+        type empty;
+        description
+          "Specifies whether this callback is for a mounted node or a
+           top level node.";
+      }
+    }
+
+    grouping sm-mpid-parm {
+      container mpid {
+        uses ysm:sm-config-keys;
+
+        leaf objpath {
+          type string;
+          description "Mount point root object path.";
+        }
+
+        anydata keys {
+          description
+            "List of all ancestor key values for the
+             Mount Point Instance, identified in the 'objpath'
+             object.
+
+             There will be one child leaf for each key in each list,
+             starting from the mount point root object.";
+        }
+      }
+      description
+        "Specifies the Mount Point Instance for the request";
+    }
+
+    sx:augment-structure
+       "/yctl:ycontrol/yctl:message-payload/yctl:payload/yctl:payload" {
       container sil-sa {
 
         description
@@ -619,6 +687,11 @@ module yumaworks-sil-sa {
               Expected Response Message: none";
 
             uses config-parms;
+
+            container schema-mount {
+              uses ysm:sm-config-contents;
+            }
+
           }
 
           container register-request {
@@ -641,6 +714,12 @@ module yumaworks-sil-sa {
                 type yt:NcxName;
                 description
                   "Module name for the target object.";
+              }
+              leaf revision {
+                type string;  // not revision-identifier
+                description
+                  "Module revision identifier.
+                   Currently just a revision date.";
               }
               leaf-list path {
                 type string;
@@ -817,26 +896,30 @@ module yumaworks-sil-sa {
               uses hooks-param;
               uses editvars-parm;
 
-              anyxml newval {
+              anydata newval {
                 description
                   "Represents the new value, if any.
                    Should be present if operation is 'merge'
                    'replace', 'create', or 'load'.";
               }
 
-              anyxml curval {
+              anydata curval {
                 description
                   "Represents the current value, if any.
                    Should be present if operation is 'replace',
                    'delete', or 'commit'";
               }
 
-              anyxml keys {
+              anydata keys {
                 description
                   "List of all ancestor or self key values for the
                    object being edited, identified by the 'path' value.
                    There will be one child leaf for each key in each list.";
               }
+
+              // used if schema mount edit on mounted data node
+              // the MPID applies to the edit node and all child nodes
+              uses sm-mpid-parm;
 
               list child-edit {
                 description
@@ -846,21 +929,20 @@ module yumaworks-sil-sa {
                 uses operation-parms;
                 uses editvars-parm;
 
-                anyxml newval {
+                anydata newval {
                   description
                     "Represents the new child value, if any.
                      Should be present if operation is 'merge'
                      'replace', 'create', or 'load'.";
                 }
 
-                anyxml curval {
+                anydata curval {
                   description
                     "Represents the current child value, if any.
                      Should be present if operation is 'replace',
                      'delete', or 'commit'";
                 }
               }  // list child edit
-
             }  // list edit
           }  // container start-transaction
 
@@ -917,7 +999,7 @@ module yumaworks-sil-sa {
               uses path-parm;
               uses hook-edit-parms;
 
-              anyxml edit {
+              anydata edit {
                 description
                   "Represents the added edits values, if any.
                    There will be one child node for each added edit
@@ -1052,7 +1134,7 @@ module yumaworks-sil-sa {
 
             uses path-parm;
 
-            anyxml keys {
+            anydata keys {
               description
                 "List of all ancestor or self key values for the
                  object being retrieved, identified by the 'path'
@@ -1060,7 +1142,7 @@ module yumaworks-sil-sa {
                  in each list.";
             }
 
-            anyxml matches {
+            anydata matches {
               description
                 "Represents any content-match child leafs for the
                  request. All leafs in this container must match the
@@ -1094,6 +1176,10 @@ module yumaworks-sil-sa {
                 }
               }
             }
+
+            // used if schema mount edit on mounted data node
+            // the MPID applies to the GET2 node and all child nodes
+            uses sm-mpid-parm;
           }
 
           container get-response {
@@ -1221,7 +1307,11 @@ module yumaworks-sil-sa {
                 "Stream name for this notification";
             }
 
-            anyxml parms {
+            // used if schema mount aware SEND function for
+            // mounted notification is sending the event
+            uses sm-mpid-parm;
+
+            anydata parms {
               description
                 "List of all parameters that this notification
                  is sending in the payload.";
@@ -1263,7 +1353,10 @@ module yumaworks-sil-sa {
                 "Identifies the name of the RPC definition.";
             }
 
-            anyxml rpc-input {
+            // used if schema mount ACTION on mounted RPC operation
+            uses sm-mpid-parm;
+
+            anydata rpc-input {
               description
                 "Contains the RPC input data (if any).";
             }
@@ -1283,7 +1376,7 @@ module yumaworks-sil-sa {
                 description
                   "RPC successfully invoked";
               }
-              anyxml rpc-output {
+              anydata rpc-output {
                 description
                   "Contains the RPC output data (if any).";
               }
@@ -1312,17 +1405,22 @@ module yumaworks-sil-sa {
             uses client-addr-obj;
             uses path-parm;
 
-            anyxml keys {
+            anydata keys {
               description
                 "List of all ancestor key values for the
                  action being invoked, identified by the 'path' value.
                  There will be one child leaf for each key in each list.";
             }
 
-            anyxml action-input {
+            // used if schema mount ACTION on mounted RPC operation
+            uses sm-mpid-parm;
+
+            anydata action-input {
               description
                 "Contains the ACTION input data (if any).";
             }
+
+
           }
 
           container action-response {
@@ -1339,7 +1437,7 @@ module yumaworks-sil-sa {
                 description
                   "ACTION successfully invoked";
               }
-              anyxml action-output {
+              anydata action-output {
                 description
                   "Contains the ACTION output data (if any).";
               }
@@ -1426,7 +1524,7 @@ module yumaworks-sil-sa {
                 requested val_value based on XPath of object instance.
               Expected Response Message: none";
 
-            anyxml value {
+            anydata value {
               description
                 "Represents the the val_value based on XPath of
                  object instance";

@@ -14,6 +14,8 @@ module yangcli-pro {
 
     import ietf-netconf-with-defaults { prefix wd; }
 
+    import ietf-yang-structure-ext { prefix sx; }
+
     import yuma-ncx { prefix ncx; }
 
     import yuma-app-common { prefix ncxapp; }
@@ -72,6 +74,17 @@ module yangcli-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+
+     revision 2023-08-23 {
+       description
+         "23.10T-0: Add parameters for yangcli-gw";
+     }
+
+     revision 2023-08-04 {
+       description
+         "22.10T-11: Change CLI container to sx:structure";
+     }
+
      revision 2023-03-15 {
        description
          "22.10-7: Add rawrpc command.
@@ -81,6 +94,11 @@ module yangcli-pro {
      revision 2023-03-06 {
        description
          "22.10-6: Add --tcp-connect-timeout parameter.";
+     }
+
+     revision 2023-01-06 {
+       description
+         "Add gotop config command.";
      }
 
      revision 2021-10-30 {
@@ -1020,13 +1038,60 @@ module yangcli-pro {
       }
     }
 
+    grouping ZmqApiParms {
+      description
+        "For use in the yangcli-gw program only.
+         Not enabled in other programs.";
+
+       leaf zmqapi-gateway-id {
+         type nt:NcxName;
+         default "gateway1";
+         description
+           "The identifier string used to name the yangcli-gw
+            instance.  This string will be used for the gateway ID
+            in ZMQAPI messages and logging output.";
+       }
+
+       leaf zmqapi-responder-endpoint {
+         type string;  // URI for zeroMQ endpoint
+         default "tcp://127.0.0.1:5555";
+         description
+           "ZeroMQ endpoint URI that the yangcli-gw
+            will use to listen for ZMQAPI commands.
+            A client is expected to connect to this endpoind
+            using the 'ZMQ_REQ' socket type.
+
+            The client can send ZMQAPI.1 REQ messages
+            on this socket.
+
+            Then yangcli-gw will respond with a ZMQAPI.1 REP
+            message on this socket.";
+       }
+
+       leaf zmqapi-publisher-endpoint {
+         type string;  // URI for zeroMQ endpoint
+         default "tcp://127.0.0.1:5556";
+         description
+           "ZeroMQ endpoint URI that the yangcli-gw
+            will use to publish ZMQAPI notifications.
+            A client is expected to connect to this endpoind
+            using the 'ZMQ_SUB' socket type.
+
+            The client is expected to listen only on this socket.
+
+            Then yangcli-gw will send ZMQAPI.1 PUB
+            messages as needed on this socket.";
+       }
+
+    }
+
     /*************************************************************
      *
      *         CLI parameter set for yangcli-pro program
      *
      *************************************************************/
 
-    container yangcli-pro {
+    sx:structure yangcli-pro {
       ncx:cli;
 
       description
@@ -1674,7 +1739,12 @@ module yangcli-pro {
       leaf display-mode {
         description
            "Controls how values are displayed during output
-            to STDOUT or a log file.";
+            to STDOUT or a log file.
+
+            This typedef matches the ncx_display_mode_t enum
+            for text based encoding formats.
+            The 'cbor' enumeration is not included in this parameter.";
+
          type enumeration {
            enum plain {
              description
@@ -2139,7 +2209,11 @@ module yangcli-pro {
         type boolean;
         default false;
       }
-    }
+
+      uses ZmqApiParms;
+
+    }  // end yangcli-pro container
+
 
     /*************************************************************
      *
@@ -4830,7 +4904,7 @@ module yangcli-pro {
 
     uses VarsContainer;
 
-    container saved-devices {
+    sx:structure saved-devices {
        ncx:abstract;
        description
          "Represents all the saved devices in
@@ -4892,7 +4966,7 @@ module yangcli-pro {
     }
 
 
-    container saved-sessions {
+    sx:structure saved-sessions {
       ncx:abstract;
       description
         "Represents all the saved sessions in
@@ -5027,7 +5101,7 @@ module yangcli-pro {
       }
     }
 
-    container saved-schema-servers {
+    sx:structure saved-schema-servers {
       ncx:abstract;
       description
       "Represents all the saved schema-servers in
@@ -5061,7 +5135,7 @@ module yangcli-pro {
        }
     }
 
-    container saved-event-handlers {
+    sx:structure saved-event-handlers {
      ncx:abstract;
      description
        "Represents all the saved event-handlers in
@@ -5109,7 +5183,7 @@ module yangcli-pro {
       }
     }
 
-    container saved-users {
+    sx:structure saved-users {
      ncx:abstract;
      description
        "Represents all the saved users in
@@ -5180,6 +5254,15 @@ module yangcli-pro {
         "Apply the pending edits in config mode";
     }
 
+    leaf gotop {
+      ncx:abstract;
+      ncx:hidden;
+      type empty;
+      description
+        "Exit all config sub-modes until the top level config mode
+        is reached.";
+    }
+
     leaf return {
       ncx:abstract;
       ncx:hidden;
@@ -5197,7 +5280,7 @@ module yangcli-pro {
          to the running datastore in config mode.";
     }
 
-    container pipe {
+    sx:structure pipe {
       ncx:abstract;
       ncx:hidden;
 

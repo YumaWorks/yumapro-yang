@@ -5,6 +5,7 @@ module yumaworks-yp-gnmi {
 
     prefix "ypgnmi";
 
+    import ietf-yang-structure-ext { prefix sx; }
     import yumaworks-ycontrol { prefix yctl; }
     import yuma-types { prefix yt; }
 
@@ -32,7 +33,7 @@ module yumaworks-yp-gnmi {
 
 
        YumaPro gNMI message definitions.
-       Copyright (c) 2014 - 2018, YumaWorks, Inc. All rights reserved.
+       Copyright (c) 2014 - 2023, YumaWorks, Inc. All rights reserved.
 
        Redistribution and use in source and binary forms, with or
        without modification, is permitted pursuant to, and subject
@@ -40,6 +41,10 @@ module yumaworks-yp-gnmi {
        http://opensource.org/licenses/BSD-3-Clause
        ";
 
+    revision 2023-08-04 {
+      description
+        "22.10T-11: Change CLI container to sx:structure";
+    }
 
     revision 2018-02-05 {
         description
@@ -310,7 +315,8 @@ module yumaworks-yp-gnmi {
     }
 
 
-    augment "/yctl:ycontrol/yctl:message-payload/yctl:payload/yctl:payload" {
+    sx:augment-structure
+      "/yctl:ycontrol/yctl:message-payload/yctl:payload/yctl:payload" {
       container yp-gnmi {
 
         choice message-type {

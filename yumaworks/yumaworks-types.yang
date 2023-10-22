@@ -13,12 +13,18 @@ module yumaworks-types {
        "Common CLI parameter types used in multiple YumaPro
         applications.
 
-     Copyright (c) 2012 - 2020 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2012 - 2022 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+    revision 2022-05-01 {
+       description
+         "21.10T only:
+            - Add yang-sid-mode typedef and lsid-mode.";
+    }
 
     revision 2021-05-15 {
        description
@@ -368,5 +374,50 @@ module yumaworks-types {
             pattern '[a-zA-Z0-9_][a-zA-Z0-9\-_\.]{0,63}';
         }
     }
+
+    typedef yang-sid-mode {
+      type enumeration {
+        enum sid-file {
+          description
+            "Use YANG SID files for SID assignments";
+        }
+        enum lsid {
+          description
+            "Use LSID SID generation mode for SID assignments.
+             For publisher only.";
+        }
+        enum lsid-file {
+          description
+            "Use LSID SID file generation mode for SID assignments.
+             For subscriber only.";
+        }
+      }
+      description
+        "The source of SID assignments for YANG schema items.";
+    }
+
+    typedef lsid-size {
+      type enumeration {
+        enum lsid16 {
+          description
+            "The SID width is 16 bits.
+             The maximum SID value is 15 bits (32K values)";
+        }
+        enum lsid32 {
+          description
+            "The SID width is 32 bits.
+             The maximum SID value is 31 bits (2G values)";
+        }
+        enum lsid64 {
+          description
+            "The SID width is 64 bits.
+             The maximum SID value is 63 bits (9.2 x 10^^18 values)";
+        }
+      }
+      description
+        "If the yang-sid-mode is 'lsid' or 'lsid-file' then the server
+         implementation will pick a SID size at build-time.";
+    }
+
 
 }

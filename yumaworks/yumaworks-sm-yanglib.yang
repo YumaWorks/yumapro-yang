@@ -1,0 +1,80 @@
+module yumaworks-sm-yanglib {
+  yang-version 1.1;
+  namespace "urn:yumaworks:params:xml:ns:yang:yumaworks-sm-yanglib";
+  prefix "ysl";
+
+  import ietf-yang-types { prefix yang; }
+  import ietf-yang-library { prefix yanglib; }
+
+  organization "YumaWorks, Inc.";
+  contact "Support <support@yumaworks.com>";
+  description
+    "This module contains configuration parameters
+     for the YANG Schema Mount data model defined in RFC 8528.
+
+     Copyright (c) 2022, YumaWorks, Inc. All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject
+     to the license terms contained in, the BSD 3-Clause License
+     http://opensource.org/licenses/BSD-3-Clause.
+   ";
+
+  revision 2022-09-24 {
+    description
+       "Initial version";
+  }
+
+  rpc get-sm-yanglib {
+    description
+      "Get the YANG library contents for the specified
+       mount point label.  The standard mechanism  is not
+       robust or efficient for several reasons:
+         - The YANG library is duplicated for every mount
+           point instance.
+         - The client does not know the ancestor keys for
+           any mount point instance so must retrieve all
+           instances which is very inefficient since they are
+           the same in each instance.
+         - The YANG library does not exist until the mount
+           point exists.  This creates an ordering problem
+           so a client must first create the mount point,
+           get the YANG library, and then start using the mounted
+           modules.
+         - Access control issues can make it difficult to read
+           the YANG module inventory, depending on the mount
+           point instance and the NACM configuration.
+
+       Support for /modules-state is provided only.
+       The NMDA YANG library is only available via a
+       normal 'get' or 'get-data' operation on the
+       /yang-library subtree.";
+    input {
+      leaf module {
+        type yang:yang-identifier;
+        mandatory true;
+        description
+          "The module containing the mount point extension.";
+      }
+      leaf label {
+        type yang:yang-identifier;
+        mandatory true;
+        description
+          "The mount point label. The server will return YANG library
+           information for this mount point only if it is supported
+           and enabled in the server.";
+      }
+    }
+    output {
+      container modules-state {
+        leaf module-set-id {
+          type string;
+          mandatory true;
+          description "Leaf from ietf-yang-library.yang";
+        }
+        uses yanglib:module-list;
+      }
+    }
+  }
+
+}

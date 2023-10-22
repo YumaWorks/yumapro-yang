@@ -18,7 +18,7 @@ module netconfd-pro {
 
     import ietf-inet-types { prefix inet; }
 
-    import ietf-restconf { prefix rc; }
+    import ietf-yang-structure-ext { prefix sx; }
 
     organization  "YumaWorks, Inc.";
 
@@ -36,12 +36,36 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2023-10-08 {
+      description
+        "23.10-1:
+         -  Add --user-parm CLI parameter
+        ";
+    }
+
+    revision 2023-08-21 {
+      description
+         "23.10T-0:
+          -  Add --server-root parameter
+         ";
+    }
+
+    revision 2023-08-04 {
+      description
+        "22.10T-11:
+         -  Change CLI parameters to use sx:structure;
+            rc:yang-data is deprecated
+        ";
+    }
+
     revision 2023-05-12 {
       description
          "22.10-8:
           -  Add --with-error-number parameter
           -  Add --with-yumaworks-lock parameter
           -  Add --sil-cc-callback-all parameter
+          -  Change with-yang11-hello default to true for
+             standards compliance
          ";
     }
 
@@ -61,9 +85,17 @@ module netconfd-pro {
          - Add --tls-deprecated-ok CLI parameter";
     }
 
+    revision 2022-09-24 {
+      description
+        "22.10T addition only:
+         - Add --with-yumaworks-sm-yanglib CLI parameter.
+         - Add --with-yang-cbor parameter.
+         - Add --yang-sid-mode parameter.";
+    }
+
     revision 2022-09-17 {
       description
-        "22.10 addition only:
+        "22.10 addition:
          - Add --highres-event-time CLI parameter";
     }
 
@@ -84,7 +116,10 @@ module netconfd-pro {
       description
         "21.10 addition only:
          - Add --with-yumaworks-cert-usermap parameter.
-         - Add --remove-schema-aug-leafs parameter.";
+         - Add --remove-schema-aug-leafs parameter.
+         - Add --with-schema-mount parameter.
+         - Add --sm-config parameter.
+         - Add --sm-config-encoding parameter.";
     }
 
     revision 2021-10-13 {
@@ -625,6 +660,82 @@ module netconfd-pro {
       }
     }
 
+    grouping netconfd-tls-parms {
+      leaf netconf-tls-address {
+        description
+          "Specifies the IP address to listen on for NETCONF
+           over TLS messages.";
+        type inet:ip-address;
+        default "0.0.0.0";
+        reference "RFC 7589: NETCONF over TLS";
+      }
+
+      leaf netconf-tls-certificate {
+        type string {
+          length "1 .. max";
+        }
+        description
+          "Contains the file path specification
+           for the file containing the server SSL certificate,
+           used for the NETCONF over TLS protocol.";
+        default "$HOME/.ssl/netconfd-pro.crt";
+      }
+
+      leaf netconf-tls-key {
+        type string {
+          length "1 .. max";
+        }
+        description
+          "Contains the file path specification
+           for the file containing the server SSL key,
+           used for the NETCONF over TLS protocol.";
+        default "$HOME/.ssl/netconfd-pro.key";
+      }
+
+      leaf netconf-tls-port {
+        description
+           "Specifies the TCP port to listen for NETCONF over TLS
+            messages.";
+        type inet:port-number;
+        default 6513;
+        reference "RFC 7589: NETCONF over TLS";
+      }
+
+      leaf netconf-tls-trust-store {
+        type string {
+          length "1 .. max";
+        }
+        description
+          "Contains the file path specification
+           for the file containing the server SSL trust-store,
+           or the path specification for the directory to use
+           for finding trusted certificates. If the default value
+           is used and the file is not found, then the default
+           directory location '/etc/ssl/certs' will be used.";
+        default "$HOME/.ssl/trust-store.pem";
+      }
+    }
+
+    grouping BundleParm {
+      leaf-list bundle {
+        description
+          "Specifies the name of a SIL bundle to load into system
+           at boot-time.";
+        type nt:NcxName;
+      }
+    }
+
+    grouping AllowedUserParm {
+      leaf-list allowed-user {
+        description
+         "Name of a user that is allowed to have access to
+          the server via network management sessions.
+          If any configured then the user name must be in this list,
+          unless the user is the superuser account.";
+        type nt:NcxName;
+      }
+    }
+
     grouping netconfd-pro-parms {
       description
          "Server CLI for the NETCONF protocol.
@@ -700,14 +811,7 @@ module netconfd-pro {
         default false;
       }
 
-      leaf-list allowed-user {
-        description
-         "Name of a user that is allowed to have access to
-          the server via network management sessions.
-          If any configured then the user name must be in this list,
-          unless the user is the superuser account.";
-        type nt:NcxName;
-      }
+      uses AllowedUserParm;
 
       choice audit-log-choice {
         leaf audit-log {
@@ -836,12 +940,7 @@ module netconfd-pro {
         default true;
       }
 
-      leaf-list bundle {
-        description
-          "Specifies the name of a SIL bundle to load into system
-           at boot-time.";
-        type nt:NcxName;
-      }
+      uses BundleParm;
 
       leaf callhome-reconnect {
         description
@@ -1238,6 +1337,10 @@ module netconfd-pro {
             unless the 'log' parameter is used, then that location
             will be used instead.
 
+            If this parameter is provided on the command line
+            and set to 'true' then the --server-root parameter
+            must also be provided on the command-line (if it is used).
+
             The FHS audit log file will be created by default
             unless the 'audit-log' parameter is used, then that
             location will be used instead. If the 'no-audit-log'
@@ -1578,7 +1681,7 @@ module netconfd-pro {
            Using this parameter with a value greater than zero
            will violate RFC 6241 procedures for the 'lock'
            operation. A minimum lock hold time of 5 seconds is
-           enforced.
+           allowed.
 
              - If a timeout occurs the datastore lock will be
                dropped, but the session will not be dropped.
@@ -1681,60 +1784,7 @@ module netconfd-pro {
         type inet:uri;
       }
 
-      leaf netconf-tls-address {
-        description
-          "Specifies the IP address to listen on for NETCONF
-           over TLS messages.";
-        type inet:ip-address;
-        default "0.0.0.0";
-        reference "RFC 7589: NETCONF over TLS";
-      }
-
-      leaf netconf-tls-certificate {
-        type string {
-          length "1 .. max";
-        }
-        description
-          "Contains the file path specification
-           for the file containing the server SSL certificate,
-           used for the NETCONF over TLS protocol.";
-        default "$HOME/.ssl/netconfd-pro.crt";
-      }
-
-      leaf netconf-tls-key {
-        type string {
-          length "1 .. max";
-        }
-        description
-          "Contains the file path specification
-           for the file containing the server SSL key,
-           used for the NETCONF over TLS protocol.";
-        default "$HOME/.ssl/netconfd-pro.key";
-      }
-
-      leaf netconf-tls-port {
-        description
-           "Specifies the TCP port to listen for NETCONF over TLS
-            messages.";
-        type inet:port-number;
-        default 6513;
-        reference "RFC 7589: NETCONF over TLS";
-      }
-
-      leaf netconf-tls-trust-store {
-        type string {
-          length "1 .. max";
-        }
-        description
-          "Contains the file path specification
-           for the file containing the server SSL trust-store,
-           or the path specification for the directory to use
-           for finding trusted certificates. If the default value
-           is used and the file is not found, then the default
-           directory location '/etc/ssl/certs' will be used.";
-        default "$HOME/.ssl/trust-store.pem";
-      }
-
+      uses netconfd-tls-parms;
 
       leaf no-log {
         description
@@ -1768,8 +1818,10 @@ module netconfd-pro {
         max-elements 4;
         description
           "Specifies the TCP ports that the server will accept
-           connections from.  These ports must also be configured
-           in the /etc/ssh/sshd_config file for the SSH master
+           connections from for NETCONF over SSH sessions.
+
+           These ports must also be configured in the
+           /etc/ssh/sshd_config file for the SSH master
            server to accept the connection and invoke the netconf
            subsystem.
 
@@ -1778,8 +1830,18 @@ module netconfd-pro {
            If any ports are configured, then only those values
            will be accepted by the server.
 
-           If no ports are configured, then the server will accept
-           connections on the netconf-ssh port (tcp/830).";
+           If the server is running in Single-Instance Mode,
+           then if no ports are configured, the server
+           will accept connections on the netconf-ssh
+           port (tcp/830).
+
+           If the server is running in Multi-Instance Mode
+           (i.e., --server-root is set), then any port
+           configured on the SSH server will be accepted.
+
+           For CallHome connections, if the connection port
+           is over 10000 then the connection will be accepted
+           and this list will be ignored.";
 
          type inet:port-number;
       }
@@ -2204,6 +2266,39 @@ module netconfd-pro {
            data node and its parent node are different.";
         type boolean;
         default false;
+      }
+
+      leaf sm-config {
+        description
+           "Specifies the XML or JSON file to read which contains
+            the configuration data needed to create desired
+            mount-points.
+
+            This config file controls what is in the YANG Library
+            for each mount-point label.
+
+            If this parameter is set then the file must be found
+            and be valid or the server will exit with an error.
+
+            If --with-schema-mount=false this parameter is ignored.";
+        type string;
+      }
+
+      leaf sm-config-encoding {
+        description
+          "Specifies the Schema Mount Config file encoding. Based on
+           this encoding the server will parse the config file accordingly.
+
+           If --with-schema-mount=false this parameter is ignored.";
+        type enumeration {
+          enum json {
+            description "Identify JSON encoding.";
+          }
+          enum xml {
+            description "Identify XML encoding.";
+          }
+        }
+        default json;
       }
 
       leaf snmp-agent-role {
@@ -2664,6 +2759,30 @@ module netconfd-pro {
         default "server1";
       }
 
+      leaf server-root {
+        description
+           "Server Root Identifier string to use for this server.
+            Used to run the server in Multi-Instance Mode.
+
+            Every server running on the same host must have a unique
+            server-root value.
+
+            If this leaf is not present, then the server will run
+            in Single-Instance Mode.
+
+            This value must match a Server Root ID in a mapping
+            in the server-multi-info.txt file usually located
+            in the /etc directory.
+
+            If this parameter is provided on the command line
+            then the --fileloc-fhs parameter must also be
+            provided on the command-line (if it is set to 'true').
+
+            TBD: All differences between 2 modes
+           ";
+        type nt:NcxName;
+      }
+
       leaf usexmlorder {
         description
           "If present, then XML element order will be enforced.
@@ -2671,6 +2790,19 @@ module netconfd-pro {
            generated if possible. Default is no enforcement of
            strict XML order.";
         type empty;
+      }
+
+      leaf user-parm {
+        description
+          "Optional user parameter that can be accessed by the
+           server instrumentation code within netconfd-pro.
+
+           This parameter has no defined purpose or structure.
+           It can be accessed with the 'agt_get_user_parm' API
+           function from agt.h";
+         type string {
+           length "1 .. 8192";
+         }
       }
 
       uses WatcherChoice;
@@ -2753,7 +2885,7 @@ module netconfd-pro {
       leaf with-callhome {
         description
           "This feature is only available if the server image
-           is built with the flags WITH_CALLHOME=1.
+           is built with the WITH_CALLHOME=1 compiler flag.
 
            If set to 'true', then the IETF Callhome for SSH
            feature will be enabled. If set to 'false', then
@@ -2847,6 +2979,22 @@ module netconfd-pro {
       }
 
       uses ywapp:OcPatternParm;
+
+      leaf with-schema-mount {
+        description
+          "This feature is only available if the server image
+           is built with the WITH_SCHEMA_MOUNT=1 compiler flag.
+
+           If set to 'true', then the Schema Mount feature will
+           be enabled and the Schema Mount related YANG modules
+           and SIL code will be loaded.
+
+           Additional configuration will be required. The server
+           needs to know which YANG modules should be mounted at
+           a given mount-point. Refer to --sm-config parameter.";
+        type boolean;
+        default true;
+      }
 
       leaf with-startup {
         description
@@ -2961,7 +3109,7 @@ module netconfd-pro {
           "If set to 'true', then the yumaworks-support-save module
            will be loaded and enabled. Otherwise, this module will
            not be loaded. Ignored if the server image is not built
-           with the WITH_SUPPORT_SAVE=1 compile flag. This module
+           with the WITH_SUPPORT_SAVE=1 compiler flag. This module
            provides the <get-support-save> operation to collect
            bug report information.";
         type boolean;
@@ -2988,7 +3136,7 @@ module netconfd-pro {
            will not be enabled. The incoming connection will be
            dropped if the protocol is disabled.";
         type boolean;
-        // default true;  !! NOW DEPRECATED !!
+        // default true;  !! NOW OBSOLETE !!
         default false;
         status deprecated;
       }
@@ -3001,9 +3149,12 @@ module netconfd-pro {
            from <capability> used in <hello>. Also keep out of
            monitoring <capabilities> list.
            If 'false' then ignore the standard and advertise
-           YANG 1.1 module capabilities";
+           YANG 1.1 module capabilities.
+
+           Changed default to true in 22.10T-8 for RFC 7950
+           compliance.";
         type boolean;
-        default false;
+        default true;
       }
 
       leaf with-yang-patch-running {
@@ -3011,6 +3162,16 @@ module netconfd-pro {
           "If set to 'true', the YANG-PATCH will be enabled when
            the server supports only the :writable-running capability.
            If 'false' then the YANG-PATCH requests will be rejected.";
+        type boolean;
+        default false;
+      }
+
+      leaf with-yang-cbor {
+        description
+          "If set to 'true', the YANG to CBOR binary encoding will be
+           enabled. This parameter has no effect unless the
+           WITH_YANG_CBOR=1 make parameter is used in the build.
+           If 'false' then the YANG to CBOR binary encoding is disabled.";
         type boolean;
         default false;
       }
@@ -3145,6 +3306,17 @@ module netconfd-pro {
         default true;
       }
 
+      leaf with-yumaworks-sm-yanglib {
+        description
+          "If set to 'true', then the yumaworks-sm-yanglib module will be
+           loaded and enabled. Otherwise, this module will not be
+           loaded and the <get-sm-yanglib> operation will not be available.
+           This parameter is ignored unless the Schema Mount feature
+           is enabled and configured in the server.";
+        type boolean;
+        default true;
+      }
+
       leaf with-yumaworks-system {
         description
           "If set to 'true', then the yumaworks-system module will be
@@ -3165,6 +3337,16 @@ module netconfd-pro {
            WITH_TEMPLATES=1 compiler flag.";
         type boolean;
         default true;
+      }
+
+      leaf yang-sid-mode {
+        description
+          "The mode to use for the source of YANG SID assignments.
+           This parameter has no effect unless the WITH_YANG_CBOR=1
+           make parameter is used in the build and the --with-yang-cbor
+           parameter is set to 'true'.";
+        type ywt:yang-sid-mode;
+        default "sid-file";
       }
 
       leaf with-yumaworks-cert-usermap {
@@ -3224,10 +3406,9 @@ module netconfd-pro {
 
     }
 
-    rc:yang-data ncparms {
-      container netconfd-pro {
-        ncx:cli;
-        uses netconfd-pro-parms;
-      }
+    sx:structure netconfd-pro {
+      ncx:cli;
+      uses netconfd-pro-parms;
     }
+
 }

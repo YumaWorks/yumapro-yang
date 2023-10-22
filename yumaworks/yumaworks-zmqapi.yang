@@ -1,0 +1,187 @@
+module yumaworks-zmqapi {
+  yang-version 1.1;
+  namespace "urn:ietf:params:xml:ns:yang:yumaworks-zmqapi";
+  prefix "zmqapi";
+
+  import ietf-yang-structure-ext { prefix sx; }
+  import ietf-yang-types { prefix yang; }
+
+  organization "YumaWorks, Inc.";
+
+  contact
+    "Support <support@yumaworks.com>";
+
+  description
+    "This module contains the structure definitions
+     that define the ZMQAPI (Version 1) message headers and events.
+
+     Command Channel:
+
+         Client  --->   ZMQAPI.1 REQ   --->  yangcli-gw
+
+         Client  <---   ZMQAPI.1 REP   <---  yangcli-gw
+
+     Event Channel:
+
+         Client  <---   ZMQAPI.1 PUB   <---  yangcli-gw
+
+     ZMQAPI.1 REQ message
+       - message header (text)
+       - command payload (text)
+
+     ZMQAPI.1 REP message
+       - message header (text)
+       - session header (JSON)
+       - response (any, omitted for R0)
+       - log (text, omitted for R0)
+
+     ZMQAPI.1 PUB message
+       - message header (text)
+       - session header (JSON)
+       - event header (JSON)
+       - event payload (any, omitted for R0)
+
+    ";
+
+  revision 2023-06-24 {
+    description
+       "Initial version";
+  }
+
+  grouping session-hdr {
+      description
+        "Represents the 'session' header contents sent in
+         all ZMQAPI.1 'REP' and 'PUB' messages.";
+      leaf count {
+        type uint32;
+        description
+          "Number of sessions currently active in the
+           yangcli-gw server.";
+      }
+      leaf sid {
+        type uint32;
+        description
+          "Session ID of the current session or 0 if
+           current session is not connected.";
+      }
+      leaf name {
+        type yang:yang-identifier;
+        description
+          "Session name of the current session.
+           This will be set to the value 'default' unless
+           named sessions are used.";
+      }
+      leaf server {
+        type string;
+        description
+          "Address of the server for the current session.
+           If the 'sid' is set to zero then this value
+           will be an empty string.";
+      }
+      leaf port {
+        type uint16;
+        description
+          "TCP port number of the server for the current session.
+           If the 'sid' is set to zero then this value will be zero.";
+      }
+      leaf user {
+        type string;
+        description
+          "User name string used for the current session.
+           If the 'sid' is set to zero then this value
+           will be an empty string.";
+      }
+  }
+
+  grouping event-hdr {
+      description
+        "Represents the 'event' header sent in ZMQAPI.1
+         PUB messages.";
+      leaf type {
+        type enumeration {
+          enum gw {
+            description
+              "The event is from yangcli-gw, not a managed server";
+          }
+          enum stream {
+            description
+              "The event is from an event stream subscription.";
+          }
+          enum data {
+            description
+              "The event is from a datastore subscription.";
+          }
+        }
+        description
+          "The type of event that is contained in the event
+           payload section of the PUB message.";
+      }
+      leaf time {
+        type yang:date-and-time;
+        description
+          "The eventTime reported by the server or the
+           current time for a 'gw' event type.";
+      }
+      leaf observer {
+         type uint32;
+         description
+           "The observer identifier for the event source.
+            The value '0' is used for 'gw' and 'stream'
+            message types.  It is possible the observer
+            identifier will be set for a 'data' event type.";
+      }
+      leaf module {
+          type yang:yang-identifier;
+          description
+            "The YANG module name containing the event
+             definition for the event payload portion
+             of the message.
+
+             Note that the module name for the top-level
+             element in a YANG 1.1 notification may not
+             be the same as the notification.";
+      }
+      leaf revision {
+           type string;
+           description
+             "The revision date for the 'module' leaf.
+              This is an empty string if no revision string
+              is available.";
+      }
+      leaf name {
+          type yang:yang-identifier;
+          description
+             "The event name for this PUB message.";
+      }
+      leaf path {
+          type string;
+          description
+            "The datastore path to the event.
+             The string format is a RESTCONF instance-identifier
+             as defined in RFC 7951.
+
+              - For 'gw' type events this will always be the root.
+              - For 'stream' and 'data' type events:
+                - this will be the root for top-level events.
+                - this will be the path to the parent of the nested
+                  notification for YANG 1.1 nested notifications or
+                  schema-mounted notifications.
+             ";
+      }
+  }
+
+  /* structure for session header
+   * real header is sent without any 'session' container
+   */
+  sx:structure session {
+      uses session-hdr;
+  }
+
+  /* structure for event header
+   * real header is sent without any 'event' container
+   */
+  sx:structure event {
+      uses event-hdr;
+  }
+
+}

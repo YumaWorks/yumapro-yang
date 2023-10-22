@@ -4,6 +4,8 @@ module yangdiff-pro {
     namespace "http://yumaworks.com/ns/yangdiff-pro";
     prefix ydipro;
 
+    import ietf-yang-structure-ext { prefix sx; }
+
     import yuma-types { prefix nt; }
 
     import yuma-ncx { prefix ncx; }
@@ -109,12 +111,17 @@ module yangdiff-pro {
                debug:  print general debugging trace info
                debug2: print verbose debugging trace info
 
-     Copyright (c) 2008 - 2011 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2008 - 2023 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+    revision 2023-08-04 {
+      description
+        "22.10T-11: Change CLI container to sx:structure";
+    }
 
     revision 2011-10-06 {
        description
@@ -142,7 +149,7 @@ module yangdiff-pro {
         default "normal";
     }
 
-    container yangdiff-pro {
+    sx:structure yangdiff-pro {
         ncx:cli;
 
         description

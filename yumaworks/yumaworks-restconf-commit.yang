@@ -12,6 +12,8 @@ module yumaworks-restconf-commit {
      for the RESTCONF protocol to support confirmed edit operations
      with automatic rollback or confirmation.
 
+
+
      This procedure is adapted from the confirmed commit procedure in
      RFC 6241.  The server requirements are exactly the same, except
      that RESTCONF provides the confirmed commit parameters as
@@ -70,6 +72,12 @@ module yumaworks-restconf-commit {
         }
       }
 
+     Copyright (c) 2016 - 2021, YumaWorks, Inc. All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject
+     to the license terms contained in, the BSD 3-Clause License
+     http://opensource.org/licenses/BSD-3-Clause.
    ";
 
   revision 2017-03-29 {
