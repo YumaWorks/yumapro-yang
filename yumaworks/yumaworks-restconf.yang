@@ -15,6 +15,11 @@ module yumaworks-restconf {
     "This module contains abstract object definitions for
      the RESTCONF protocol.";
 
+  revision 2023-10-31 {
+    description
+       "Add RESTCONF Extensions to Support NMDA";
+  }
+
   revision 2017-07-03 {
     description
        "Convert plain augment to augment-yang-data";
@@ -37,16 +42,22 @@ module yumaworks-restconf {
   }
 
   yd:augment-yang-data /rc:restconf {
-      leaf stream {
-        type empty;
-        description
-          "Used for the event-streams";
-      }
-      leaf yang {
-        type empty;
-        description
-          "Used for the schema retriaval";
-      }
+    leaf stream {
+      type empty;
+      description
+        "Used for the event-streams";
+    }
+    leaf yang {
+      type empty;
+      description
+        "Used for the schema retriaval";
+    }
+
+    leaf ds {
+      type empty;
+      description
+        "Used for the NMDA support";
+    }
   }
 
   grouping content-parameter {
@@ -152,6 +163,13 @@ module yumaworks-restconf {
         description
           "The 'stop-time' parameter from RESTCONF";
         reference "RFC 8040";
+    }
+
+    leaf with-origin {
+      type empty;
+      description
+        "The with-origin parameter from RESTCONF Extensions to Support NMDA.";
+      reference "RFC 8527";
     }
   }  // grouping query-parameters
 
