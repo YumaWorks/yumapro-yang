@@ -36,6 +36,13 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2023-12-30 {
+      description
+        "23.10-4:
+         -  Add --create-empty-npcontainers-ro CLI parameter
+        ";
+    }
+
     revision 2023-10-08 {
       description
         "23.10-1:
@@ -1203,6 +1210,29 @@ module netconfd-pro {
         type boolean;
         default true;
         status deprecated;
+      }
+
+      leaf create-empty-npcontainers-ro {
+        description
+           "If the create-empty-npcontainers parameter is set to
+            'true' then this parameter is not relevant and ignored.
+
+            Otherwise this parameter controls whether empty
+            non-presence containers will be created if there
+            are no default child nodes but there are read-only
+            child nodes.
+
+            If this parameter is set to 'false', then the server
+            will not create empty NP containers in this case.
+
+            If this parameter is set to 'true', then the server
+            will create empty NP containers in this case.
+
+            This parameter MUST be set to 'true' for proper server
+            XPath evaluation.
+           ";
+        type boolean;
+        default false;
       }
 
       leaf db-lock-retry-interval {
