@@ -36,6 +36,13 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2024-01-27 {
+      description
+        "23.10-5:
+         -  Add --max-per-user-sessions CLI parameter
+        ";
+    }
+
     revision 2023-12-30 {
       description
         "23.10-4:
@@ -1778,6 +1785,67 @@ module netconfd-pro {
         default 0;
       }
 
+
+      leaf-list max-per-user-sessions {
+        description
+          "Specifies the maximum number of concurrent sessions
+           that can be active at one time by the specified user.
+
+           This parameter will override the 'max-user-sessions'
+           parameter for the specified username, if both are present.
+
+           The max-sessions parameter has precedence,
+           so setting this parameter higher than 'max-sessions'
+           will have no effect.
+
+           This parameter does not apply to YControl sessions.
+           The value is a formatted string and it must not
+           contain any whitespace.
+
+              username:number
+
+           The username field must be between 1 and 1024 characters,
+           and must not contain a colon ':' character.
+
+           The username field must be followed by a single
+           colon ':' character, which must be followed
+           by the number field.
+
+           This value will be compared to the username assigned to
+           a client session when it is started.  The client session
+           will be dropped if the session limit is exceeded.
+
+           The number field must be between 0 and 1024.
+           This must be in decimal with no leading zeroes,
+           and must contain between 1 and 4 characters.
+           The value 0 indicates that no artificial session limit
+           should be used for the specified user.
+
+           Errors:
+             - Invalid entries will cause the server to terminate
+               with an error.
+             - A duplicate username will be ignored and a warning
+               will be printed to the log.
+
+           Available starting in 23.10-5.
+
+           Example:
+
+            - limit total concurrent client sessions to 10
+            - limit total number of concurrent sessions by a single user to 2
+            - except user 'admin1', and a limit of 5 for user 'admin2':
+
+               max-sessions 10
+               max-user-sessions 2
+               max-per-user-sessions admin1:0
+               max-per-user-sessions admin2:5
+
+          ";
+        type string {
+          length "3 .. 1029";
+        }
+      }
+
       leaf max-strlen {
         description
           "The maximum number of bytes in length that will be accepted
@@ -2007,7 +2075,7 @@ module netconfd-pro {
            will be forced to the value 'true' if the server is
            built with the REMOVE_SCHEMA_AUG_LEAFS=1 compile flag.
 
-           The default is 'false' to maintain backward compatibilty
+           The default is 'false' to maintain backward compatibility
            with previous releases. The value 'true' should be used
            since the information from these deprecated leafs is
            available in the YANG Library data structures.";
