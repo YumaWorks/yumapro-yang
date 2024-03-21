@@ -29,12 +29,23 @@ module netconfd-pro {
         This module is not advertised by the server.
         It contains only CLI parameters.
 
-     Copyright (c) 2010 - 2023 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2010 - 2024 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+
+    revision 2024-02-29 {
+      description
+        "23.10-6:
+         -  Add rpc-error to audit-log-events CLI parameter
+         -  Add --return-empty-npcontainers parameter
+         -  Add --system-sort-type parameter and make
+             system-sorted current again.
+        ";
+    }
 
     revision 2024-01-27 {
       description
@@ -927,6 +938,20 @@ module netconfd-pro {
               since it could expose sensitive configuration data contents.
               Use this option with caution!";
           }
+          bit rpc-error {
+            description
+              "Add an audit record for an RPC operation that causes
+               an 'rpc-error' element to be returned to the client.
+
+
+               If the 'rpc-summary' bit is enabled, then an rpc-error
+               report will be added to the RPC summary records that
+               have a 'status' or 'error'.
+
+               If the 'rpc-summary' bit is not enabled then an RPC summary
+               with rpc-error report will be added for RPC operations
+               that cause an error to be returned.";
+          }
         }
         default "edit-running";
       }
@@ -1212,8 +1237,11 @@ module netconfd-pro {
             will not create empty NP containers.
 
             This parameter MUST be set to true for proper server
-            XPath evaluation.  It is now deprecated.  It will be
-            set to 'obsolete' in the next release train.";
+            XPath evaluation.  It is now deprecated.  It may be
+            set to 'obsolete' in a future release train.
+
+            Set 'return-empty-npcontainers' to 'false' instead
+            of setting this parameter to 'false'.";
         type boolean;
         default true;
         status deprecated;
@@ -1236,10 +1264,15 @@ module netconfd-pro {
             will create empty NP containers in this case.
 
             This parameter MUST be set to 'true' for proper server
-            XPath evaluation.
+            XPath evaluation.  It is now deprecated.  It may be
+            set to 'obsolete' in a future release train.
+
+            Set 'return-empty-npcontainers' to 'false' instead
+            of setting this parameter to 'true.
            ";
         type boolean;
         default false;
+        status deprecated;
       }
 
       leaf db-lock-retry-interval {
@@ -2140,6 +2173,40 @@ module netconfd-pro {
         default false;
       }
 
+      leaf return-empty-npcontainers {
+        description
+           "If set to 'true' then empty configuration NP containers that
+            do not have any read-only child nodes are returned
+            in retrieval operations.
+
+            An empty NP container is defined an a non-presence
+            container that has no child nodes or only child
+            nodes that are empty NP containers.
+
+             The container is not empty if it has:
+
+             -  any child nodes besides empty NP containers
+             -  any default child nodes
+             -  any read-only child node
+
+             Normally these empty NP containers are returned
+             only if the 'with-defaults' retrieval parameter or
+             'default-style' CLI parameter is 'report-all'.
+
+             If this parameter is 'false' then empty NP containers
+             will not be returned in retrieval operations at all.
+
+             Introduced in 23.10-6.
+
+             The default setting is 'true' for backward compatibility
+             but the recommended setting is 'false'.
+           ";
+        type boolean;
+        default true;
+      }
+
+
+
       leaf return-status {
         description
           "Controls whether the server will return the status code
@@ -2253,7 +2320,7 @@ module netconfd-pro {
 
       leaf sil-invoke-for-defaults {
         description
-          "If 'true' then when a SIL or SIL-SA callback
+          "If 'true' then a SIL or SIL-SA callback
            will be invoked for default data nodes during
            the load and load_config operations.
 
@@ -2262,6 +2329,7 @@ module netconfd-pro {
         type boolean;
         default true;
       }
+
 
       leaf sil-missing-error {
         description
@@ -2686,18 +2754,49 @@ module netconfd-pro {
         default "ietf";
       }
 
+      leaf system-sort-type {
+        description
+          "Indicates the sort type for system-ordered
+           configuration lists and leaf-lists.
+
+           This parameter is ignored if 'system-ordered'
+           is set to 'false'. Otherwise this parameter
+           determines the default sort order.
+
+           The YANG extension 'ywx:sort-type' can be used
+           to override this default setting to select
+           the setting for a specific list or leaf-list
+           object.
+
+           Added in 23.10-6 release.";
+
+        type enumeration {
+          enum off {
+           description "No sorting will be done";
+          }
+          enum ascending {
+            description "Entries will be sorted in ascending order.";
+          }
+          enum descending {
+            description "Entries will be sorted in descending order.";
+          }
+        }
+        default off;
+      }
+
       leaf system-sorted {
         description
           "Indicates whether ordered-by system leaf-lists
            and lists will be kept in sorted order.
 
-           NOTE: This parameter is ignored.  The server does not
-           sort any list or leaf-list objects because YANG only
-           requires that ordered-by user instances maintain
-           the user-provided order.";
+           This parameter is no longer ignored, starting in
+           23.10-6.  It is used with the 'system-sort-type'
+           leaf to determine if and how value instances will
+           be sorted when inserted into the configuration.";
+
         type boolean;
         default false;    // CHANGED DEFAULT!!
-        status deprecated;
+        status current;   // CHANGED to current in 23.10-6
       }
 
       leaf target {

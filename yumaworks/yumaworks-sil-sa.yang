@@ -26,6 +26,13 @@ module yumaworks-sil-sa {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+  revision 2024-02-23 {
+    description
+      "Add SIL-SA EDIT3 callbacks support:
+        - Add leaf-list edit3-path to register-request message
+        - Add update value to edit list in <start-transaction> message";
+  }
+
   revision 2023-08-04 {
     description
       "22.10T-11: Change CLI container to sx:structure";
@@ -731,6 +738,11 @@ module yumaworks-sil-sa {
                 description
                   "Path string for object for an EDIT2 callback";
               }
+              leaf-list edit3-path {
+                type string;
+                description
+                  "Path string for object for an EDIT3 callback";
+              }
               leaf-list get-path {
                 type string;
                 description
@@ -908,6 +920,15 @@ module yumaworks-sil-sa {
                   "Represents the current value, if any.
                    Should be present if operation is 'replace',
                    'delete', or 'commit'";
+              }
+
+              anydata update {
+                description
+                  "Represents the combination of a new value
+                   and a current value, if any.
+                   Used in EDIT3 callbacks.
+                   Should be present if operation is 'merge'
+                   'replace', 'create', or 'load'.";
               }
 
               anydata keys {

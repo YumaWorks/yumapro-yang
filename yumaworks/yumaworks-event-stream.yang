@@ -18,7 +18,7 @@ module yumaworks-event-stream {
         This module is only loaded if the with-yumaworks-event-stream
         parameter is set to 'true'.
 
-        Copyright (c) 2021 YumaWorks, Inc. All rights reserved.
+        Copyright (c) 2021 - 2024 YumaWorks, Inc. All rights reserved.
 
         Redistribution and use in source and binary forms, with or
         without modification, is permitted pursuant to, and subject
@@ -26,6 +26,11 @@ module yumaworks-event-stream {
         http://opensource.org/licenses/BSD-3-Clause.
 
        ";
+
+    revision 2024-02-16 {
+      description
+        "23.10-6: Add description leaf to the event-stream list.";
+    }
 
     revision 2021-05-15 {
       description
@@ -109,6 +114,12 @@ module yumaworks-event-stream {
             the command line or the netconfd-pro.conf config file.";
 
            type uint32;
+        }
+
+        leaf description {
+          description
+            "Administrative description of this event stream.";
+          type string;
         }
       }  // list event-stream
 

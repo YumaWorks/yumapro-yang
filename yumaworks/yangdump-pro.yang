@@ -151,6 +151,10 @@ module yangdump-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+   revision 2024-02-25 {
+      description
+         "Add sil-edit3 CLI parameters.";
+   }
 
      revision 2023-08-04 {
        description
@@ -674,10 +678,19 @@ module yangdump-pro {
               "If present, then the 2nd generation 'edit' functions
                will be generated for SIL or SIL-SA modes
                instead of first generation 'edit' functions,
-               if code generation is being requested. Ignored otherwise.
+               if code generation is being requested.
 
                The EDIT2 callbacks are now the default.
                This parameter is no longer needed.";
+            type empty;
+          }
+
+          leaf sil-edit3 {
+            description
+              "If present, then the 3nd generation 'edit' functions
+               will be generated for SIL or SIL-SA modes
+               instead of other generation 'edit' functions,
+               if code generation is being requested. Ignored otherwise.";
             type empty;
           }
         }

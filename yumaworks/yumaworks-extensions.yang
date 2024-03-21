@@ -12,12 +12,18 @@ module yumaworks-extensions {
   description
     "This module contains definitions for YumaWorks YANG extensions.
 
-     Copyright (c) 2012 - 2021 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2012 - 2024 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+  revision 2024-03-04 {
+    description
+       "23.10-6:
+         - Add sort-type extension.";
+  }
 
   revision 2023-04-19 {
     description
@@ -505,5 +511,46 @@ module yumaworks-extensions {
       ";
     argument parmstr;
   }
+
+  extension sort-type {
+    description
+      "Used within a configuration data node definition
+       statement to define the System Ordered Sort Type
+       for the object.
+
+       It can also be added to a node using an annotation.
+       This extension affects only the node containing the
+       extension. The following data nodes are supported:
+
+         - list
+         - leaf-list
+
+       This extension only applies to ordered-by 'system'
+       data nodes.
+
+       This extension is ignored if the 'system-sorted'
+       CLI parameter is set to 'false'. Otherwise this extension
+       will override the 'system-sort-type' CLI parameter
+       value.
+
+       The 'parmstr' argument is a string with the same values
+       as the 'system-sort-type' parameter:
+
+         - off
+         - ascending
+         - descending
+
+       Example:
+
+           list foo {
+             ywx:sort-type 'descending';
+             // ...
+           }
+
+      ";
+    argument parmstr;
+  }
+
+
 
 }

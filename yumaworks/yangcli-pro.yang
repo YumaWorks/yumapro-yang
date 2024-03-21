@@ -75,6 +75,11 @@ module yangcli-pro {
      http://opensource.org/licenses/BSD-3-Clause";
 
 
+     revision 2023-12-21 {
+       description
+         "23.10-6: Change --help-width parameter.";
+     }
+
      revision 2023-08-23 {
        description
          "23.10T-0: Add parameters for yangcli-gw";
@@ -1911,9 +1916,27 @@ module yangcli-pro {
 
            If the 'help' extension is used, then that text is
            displayed in its entirety. Otherwise the total line
-           width will be limited to this help-width value.";
+           width will be limited to this help-width value.
+
+           Starting in the 23.10-6 release:
+
+           *  The help output is not limited to a single line.
+           *  Multiple lines will be output until the help-width total
+              has been reached.
+           *  The screen dimensions will be used to determine the
+              total width for a single line .
+           *  Blank lines and indentation in the description will
+              be preserved in the help output.
+           *  This parameter is used to determine the total number
+              of help characters to be displayed per object.
+           *  The value '0' indicates that the complete help text
+              should be displayed for each object, instead of a
+              specified limit.
+           *  The default value is '80' for backward compatibility.
+           *  The old limit of '511' has been extended to '65535'
+         ";
         type uint16 {
-          range "80 .. 511";
+          range "0 | 80 .. max";
         }
         default 80;
       }
@@ -2826,7 +2849,7 @@ module yangcli-pro {
          be used for the 'last-keys' parameter in the next request.
          If not present, then the walk will end.
 
-         The walk will be done on the YANG list specified by the
+         The walk will be done on the YANG list specified by
          the 'list-target' parameter. Each retrieval will request
          1 or more entries, based on the 'count' parameter. The
          data returned can be filtered according to the 'content',
