@@ -74,6 +74,13 @@ module yangcli-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+     revision 2024-03-19 {
+       description
+         "23.10T-7:
+          -  Add show callhome command.
+          -  Add callhome-server command
+          -  Add callhome-user command.";
+     }
 
      revision 2023-12-21 {
        description
@@ -1090,6 +1097,44 @@ module yangcli-pro {
 
     }
 
+
+    grouping CallHomeParms {
+      description
+        "Parameters used to configure the CallHome Server.
+         This can be done from the CLI parameters or the
+         'callhome' command.";
+
+      leaf callhome-address {
+        description
+          "Identifies the IP address that should be used to listen
+           for callhome connections. Ignored if callhome-enabled
+           is false.";
+        type inet:ip-address;
+        //default "0.0.0.0";  applies in uses-stmt if needed
+      }
+
+      leaf callhome-port {
+        type inet:port-number;
+        default 4334;
+        description
+          "Identifies the TCP port that should be used to listen
+           for NETCONF over SSH callhome connections. Ignored if
+           callhome-enabled is false.";
+        reference "RFC 8071";
+      }
+
+      leaf callhome-tls-port {
+        type inet:port-number;
+        default 4335;
+        description
+          "Identifies the TCP port that should be used to listen
+           for NETCONF over TLS callhome connections. Ignored if
+           callhome-enabled is false.";
+        reference "RFC 8071";
+      }
+    }
+
+
     /*************************************************************
      *
      *         CLI parameter set for yangcli-pro program
@@ -1551,14 +1596,12 @@ module yangcli-pro {
          default program;
       }
 
-      leaf callhome-address {
-        description
-          "Identifies the IP address that should be used to listen
-           for callhome connections. Ignored if callhome-enabled
-           is false.";
-        type inet:ip-address;
-        default "0.0.0.0";
+      uses CallHomeParms {
+        refine callhome-address {
+          default "0.0.0.0";
+        }
       }
+
 
       leaf callhome-enabled {
         description
@@ -1569,25 +1612,6 @@ module yangcli-pro {
         default false;
       }
 
-      leaf callhome-port {
-        type inet:port-number;
-        default 4334;
-        description
-          "Identifies the TCP port that should be used to listen
-           for NETCONF over SSH callhome connections. Ignored if
-           callhome-enabled is false.";
-        reference "RFC 8071";
-      }
-
-      leaf callhome-tls-port {
-        type inet:port-number;
-        default 4335;
-        description
-          "Identifies the TCP port that should be used to listen
-           for NETCONF over TLS callhome connections. Ignored if
-           callhome-enabled is false.";
-        reference "RFC 8071";
-      }
 
       leaf-list callhome-user {
         type nt:NcxUserName;
@@ -2436,6 +2460,89 @@ module yangcli-pro {
           }  // case delete-cache
         }  // choice cache-input
       }
+    }
+
+    rpc callhome-server {
+       description
+         "Access and control the CallHome server.
+           - callhome-server start
+           - callhome-server stop
+         ";
+       input {
+         choice callhome-server-input {
+           mandatory true;
+           case start {
+             leaf start {
+               mandatory true;
+               type empty;
+               description
+                 "Create and start the CallHome server.
+                  If it already exists then an error will be returned
+                  unless the 'restart-ok' parameter is also present.";
+             }
+             uses CallHomeParms {
+               description
+                 "If the parameter is set then it is used,
+                  otherwise the global CLI parameter value
+                  is used";
+             }
+             leaf restart-ok {
+               type empty;
+               description
+                 "If present, then it is OK to stop the CallHome server
+                  if running, and restart it.  Otherwise it will
+                  be an error to start the CallHome server if it is
+                  already running.
+
+                  This does not affect any callhome sessions
+                  already in progress.";
+             }
+           }
+           case stop {
+             leaf stop {
+               mandatory true;
+               type empty;
+               description
+                 "Stop and delete the CallHome server.
+                  This does not affect any callhome sessions
+                  already in progress.";
+             }
+           }
+         }
+       }
+    }
+
+    rpc callhome-user {
+       description
+         "Access and configure the CallHome Users.
+          -  Entries can be added and deleted at run-time.
+          -  These entries do not persist across a reboot.
+          -  New entries are added last.
+          -  TBD: Support ordered-by user insert modes.";
+
+       input {
+         choice callhome-user-input {
+           mandatory true;
+           case add {
+             leaf add {
+               mandatory true;
+               type nt:NcxIdentifier;
+               description
+                 "Create the CallHome User if it does not already exist.";
+             }
+           }
+           case remove {
+             leaf remove {
+               mandatory true;
+               type nt:NcxIdentifier;
+               description
+                 "Remove the CallHome User if it exists.
+                  This does not affect any callhome sessions
+                  already in progress.";
+             }
+           }
+         }
+       }
     }
 
     rpc cd {
@@ -4095,6 +4202,12 @@ module yangcli-pro {
           leaf cache {
             description
               "Show the yangcli-pro YANG module cache.";
+            type empty;
+          }
+
+          leaf callhome {
+            description
+              "Show the yangcli-pro CallHome Server status.";
             type empty;
           }
 

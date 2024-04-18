@@ -36,6 +36,13 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2024-04-06 {
+      description
+        "23.10T-7:
+         -  Add --return-error-with-data parameter
+        ";
+    }
+
 
     revision 2024-02-29 {
       description
@@ -2205,7 +2212,28 @@ module netconfd-pro {
         default true;
       }
 
+      leaf return-error-with-data {
+        description
+          "Controls whether <rpc-error> nodes will be returned
+           in RPC output for retrieval operations
 
+           - get
+           - get-data on <operational>
+
+           If true, and if a GET2 callback returns an error,
+           an <rpc-error> will be returned after all data has
+           been returned.  Make sure the client is capable
+           of handing this non-standard extension to the
+           <rpc-reply> element encoding.
+
+           If 'false', then no RPC errors will be returned
+           in addition to data, for these operations.
+
+           Introduced in 23.10T-7
+          ";
+         type boolean;
+         default false;
+       }
 
       leaf return-status {
         description

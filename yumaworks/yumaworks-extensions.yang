@@ -19,6 +19,12 @@ module yumaworks-extensions {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+  revision 2024-03-16 {
+    description
+       "23.10-7:
+         - Add hidden-from-cli extension.";
+  }
+
   revision 2024-03-04 {
     description
        "23.10-6:
@@ -550,6 +556,20 @@ module yumaworks-extensions {
       ";
     argument parmstr;
   }
+
+  extension hidden-from-cli {
+    description
+      "Used within a configuration data node definition
+       statement to indicate that the data node and all its
+       descendants should be hidden from the yp-shell
+       and yangcli-pro clients.
+
+       This is similar to the 'ncx:hidden' extension except
+       only the CLI clients are effected. If the 'ncx:hidden'
+       extension is present then this extension is ignored.";
+  }
+
+
 
 
 
