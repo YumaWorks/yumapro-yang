@@ -19,6 +19,12 @@ module yumaworks-extensions {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+  revision 2024-04-04 {
+    description
+       "23.10-8:
+         - Add confirm-data extension.";
+  }
+
   revision 2024-03-16 {
     description
        "23.10-7:
@@ -567,6 +573,31 @@ module yumaworks-extensions {
        This is similar to the 'ncx:hidden' extension except
        only the CLI clients are effected. If the 'ncx:hidden'
        extension is present then this extension is ignored.";
+  }
+
+  extension confirm-data {
+    description
+      "Used within a configuration leaf data node or input
+       node definition statement to indicate that the
+       data node should be confirmed by the user.
+
+       The user must enter the same string as the first string
+       to confirm the parameter.
+
+       -  Supported by yangcli-pro and yp-shell, starting 23.10-8.
+       -  This parameter only applies to interactive mode.
+       -  The parameters must be entered one at a time instead of
+          all at once.
+       -  This parameter does not apply to config mode.
+
+       The CLI parameter 'confirm-data-retries' specifies the
+       number of retries the user will get before giving up
+       and canceling the command in progress.
+
+       The user can use escape sequences to skip the
+       parameter instead of confirming or waiting for
+       the maximum number of retries.
+      ";
   }
 
 

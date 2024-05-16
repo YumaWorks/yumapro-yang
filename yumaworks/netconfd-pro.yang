@@ -36,13 +36,20 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
-    revision 2024-04-06 {
+    revision 2024-04-24 {
       description
-        "23.10T-7:
-         -  Add --return-error-with-data parameter
+        "23.10T-8:
+         -  Add --with-new-yanglib parameter
+         -  Add --with-new-notifs parameter
         ";
     }
 
+    revision 2024-04-06 {
+      description
+        "23.10-7:
+         -  Add --return-error-with-data parameter
+        ";
+    }
 
     revision 2024-02-29 {
       description
@@ -3187,6 +3194,37 @@ module netconfd-pro {
            enabled. Otherwise, this feature will be disabled.
            If disabled, the module-tagmap parameter will be ignored
            and the ietf-module-tags module will not be loaded.";
+        type boolean;
+        default true;
+      }
+
+      leaf with-new-notifs {
+        description
+          "If set to 'true', then the new notification operations
+           defined in RFC 8639 will be used, even if 'bundle yang-push'
+           is not used.
+
+           This will cause the 'ietf-subscribed-notifications' module
+           to be loaded by the server.
+
+           This parameter is ignored if any of the following are true:
+
+             *   --with-notifications=false.
+             *   Server not built with WITH_YANG_PUSH=1 compiler flag
+             *   --bundle=yang-push is used
+
+          ";
+        type boolean;
+        default true;
+      }
+
+      leaf with-new-yanglib {
+        description
+          "If set to 'true', then the new YANG Library from RFC 8525
+           will be used, even if --with-nmda=false. This will cause
+           the '/yang-library' subtree to be present. It does not
+           cause the '/modules-state' subtree to be removed.
+          ";
         type boolean;
         default true;
       }

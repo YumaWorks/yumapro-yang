@@ -67,12 +67,18 @@ module yangcli-pro {
            present, and then the program will exit.  Any interactive
            input breaks in the script or command will be skipped.
 
-     Copyright (c) 2010 - 2023 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2010 - 2024 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+
+     revision 2024-04-04 {
+       description
+         "23.10-8: Add --confirm-data-retries parameter.";
+     }
 
      revision 2024-03-19 {
        description
@@ -1722,6 +1728,20 @@ module yangcli-pro {
               manually once config term mode is exited.";
            type boolean;
            default true;
+      }
+
+      leaf confirm-data-retries {
+        description
+          "Controls how many retry attempts will be given to the
+           user to correctly re-enter a parameter value that
+           has the 'ywx:confirm-data' extension.
+
+           The command in progress will be cancelled unless the
+           data node is properly connfirmed or skipped.";
+        type uint8 {
+          range "1 .. 10";
+        }
+        default 3;
       }
 
       leaf with-enable-mode {
