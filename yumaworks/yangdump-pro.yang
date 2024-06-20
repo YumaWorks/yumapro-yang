@@ -151,23 +151,28 @@ module yangdump-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
-   revision 2024-02-25 {
+    revision 2024-05-21 {
       description
-         "Add sil-edit3 CLI parameters.";
-   }
+        "23.10T-9: Change defaults for --sil-edit to use EDIT3 callbacks.";
+    }
 
-     revision 2023-08-04 {
-       description
-         "22.10T-11: Change CLI container to sx:structure";
-     }
+    revision 2024-02-25 {
+      description
+        "Add sil-edit3 CLI parameters.";
+    }
 
-     revision 2021-10-23 {
-       description
-         "Change defaults for some code generation parameters
-          that are now deprecated. Changes start in 21.10-1.
-          Add --sil-edit1 and --sil-get1 parameters to preserve
-          deprecated behavior with new CLI parameters.";
-     }
+    revision 2023-08-04 {
+      description
+        "22.10T-11: Change CLI container to sx:structure";
+    }
+
+    revision 2021-10-23 {
+      description
+        "Change defaults for some code generation parameters
+         that are now deprecated. Changes start in 21.10-1.
+         Add --sil-edit1 and --sil-get1 parameters to preserve
+         deprecated behavior with new CLI parameters.";
+    }
 
      revision 2021-05-02 {
        description
@@ -679,9 +684,7 @@ module yangdump-pro {
                will be generated for SIL or SIL-SA modes
                instead of first generation 'edit' functions,
                if code generation is being requested.
-
-               The EDIT2 callbacks are now the default.
-               This parameter is no longer needed.";
+               Ignored otherwise.";
             type empty;
           }
 
@@ -690,7 +693,10 @@ module yangdump-pro {
               "If present, then the 3nd generation 'edit' functions
                will be generated for SIL or SIL-SA modes
                instead of other generation 'edit' functions,
-               if code generation is being requested. Ignored otherwise.";
+               if code generation is being requested.
+
+               The default is to use this mode so this parameter can
+               be omitted.";
             type empty;
           }
         }

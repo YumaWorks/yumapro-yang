@@ -36,6 +36,15 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2024-05-25 {
+      description
+        "23.10T-9:
+         -  Add --disabled-protocols parameter
+         -  Add --audit-log-localtime parameter
+         -  Add --disabled-imported-ok parameter
+        ";
+    }
+
     revision 2024-04-24 {
       description
         "23.10T-8:
@@ -979,6 +988,15 @@ module netconfd-pro {
         default info;
       }
 
+      leaf audit-log-localtime {
+        description
+          "If true, the audit log will include timestamps in the
+           local time zone.
+           If false, it will not include in the local time zone.";
+        type boolean;
+        default false;
+      }
+
       leaf autodelete-pdu-error {
         description
           "If true, then configuration nodes provided in the
@@ -1346,6 +1364,90 @@ module netconfd-pro {
         type boolean;
         default false;
         status obsolete;
+      }
+
+      leaf disabled-protocols {
+        description
+          "Allows sessions for client protocols to be disabled at boot-time.
+           Sessions can then be enabled at run-time; e.g., using the
+           <protocol-control> operation.
+
+           This parameter only affects session admission control.
+           The protocol must be enabled and initialized properly
+           for this parameter to have any effect.
+
+           If the protocol bit is set in this parameter, and the
+           protocol has not been enabled at run-time, then
+           incoming protocol sessions for that protocol will
+           be dropped.
+
+           Use maintenence mode to temporarily disable client sessions
+           instead of this parameter.";
+
+        type bits {
+          bit netconf {
+            description
+              "Disable NETCONF sessions.
+               -  Ignored unless --with-netconf=true or --with-netconf-tls=true.
+               -  Ignored by callhome-server connections. Callhome will fail
+                  if the bit is present.
+              ";
+          }
+          bit restconf {
+            description
+              "Disable RESTCONF sessions.
+               -  Ignored unless WITH_RESTCONF=1 used to build server
+               -  Ignored unless --with-restconf=true
+
+              ";
+          }
+          bit cli {
+            description
+              "Disable yp-shell CLI sessions.
+               -  Ignored unless WITH_CLI=1 used to build server
+               -  Ignored unless --with-yp-shell=true
+              ";
+          }
+          bit gnmi {
+            description
+              "Disable gNMI sessions.
+               -  Ignored unless WITH_GNMI WITH_RESTCONF WITH_YCONTROL
+                   all defined
+               -  Ignored unless --with-gnmi=true
+              ";
+          }
+          bit grpc {
+            description
+              "Disable gRPC sessions.
+               -  Ignored unless WITH_GRPC is defined
+               -  Ignored unless --with-grpc=true
+              ";
+          }
+        }
+        default "";
+      }
+
+      leaf disable-imported-ok {
+        description
+           "Specifies whether the server should disable
+            objects that are only imported, and not
+            loaded via module or bundle parameter.
+
+            These modules are marked as conformance-type='import'
+            the YANG Library.
+
+            - Old behavior is 'false' which incorrectly adds all
+              objects from the module into the schema tree and
+               datastores
+            - New behavior is to mark these objects as disabled
+              in the obj_is_enabled() function.
+
+            - Added in 23.10T-9
+            - NOTE: Default is to change server behavior!
+              MUST set to 'false' to preserve the old incorrect
+               behavior.";
+        type boolean;
+        default true;
       }
 
       leaf eventlog-size {

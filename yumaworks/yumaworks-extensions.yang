@@ -322,7 +322,7 @@ module yumaworks-extensions {
        If 'errmsg-apptag' sub-statements are found, then
        this entry will match only those error-app-tag values.
 
-       The 'basestr' argument must be formatted string.
+       The 'basestr' argument must be a formatted string.
        If any parameters are specified, then the corresponding
        'errmsg-parm' extension statements must be encoded within
        this errmsg statement.

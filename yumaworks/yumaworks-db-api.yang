@@ -26,6 +26,11 @@ module yumaworks-db-api {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2024-05-26 {
+      description
+        "23.10T-9: Add protocol-control message";
+    }
+
     revision 2023-08-04 {
       description
         "22.10T-11: Change CLI container to sx:structure";
@@ -410,6 +415,42 @@ module yumaworks-db-api {
                mandatory true;
                description
                  "Contains the RPC reply message for the subrpc-request.";
+            }
+          }
+
+          container protocol-control {
+            description
+             "Message type: subsys-request
+              Purpose: Enable or disable a client protocol
+              Expected Response Message: ok or error
+
+              Based on the <protocol-control> operation in the
+              yumaworks-system.yang module.
+              ";
+
+            leaf action {
+              type yt:NcxName;
+              mandatory true;
+              description
+                "Protocol action. Supported actions are
+                  - enable
+                  - disable
+                  - status
+                ";
+            }
+
+            leaf protocol {
+              type yt:NcxName;
+              mandatory true;
+              description
+                "Identifies the name of the protocol.
+                  Supported protocols are:
+                  - netconf
+                  - restconf
+                  - cli
+                  - gnmi
+                  - grpc
+                ";
             }
           }
 

@@ -77,7 +77,10 @@ module yangcli-pro {
 
      revision 2024-04-04 {
        description
-         "23.10-8: Add --confirm-data-retries parameter.";
+         "23.10-8:
+           -  Add --confirm-data-retries parameter.
+           -  Add --ypshell-exec-ok parameter.
+         ";
      }
 
      revision 2024-03-19 {
@@ -2279,8 +2282,52 @@ module yangcli-pro {
 
       uses ZmqApiParms;
 
-    }  // end yangcli-pro container
+      leaf ypshell-exec-ok {
+         description
+            "Specifies if the yp-shell program can have access
+             to the exec type of commands such as the 'run' and
+             'run-shell' commands. Only applies to yp-shell.
 
+             If 'true' then yp-shell witll allow the user session
+             to use the following commands:
+             - cd
+             - elif
+             - else
+             - end
+             - eval
+             - fill
+             - get-locks
+             - if
+             - list
+             - log-debug
+             - log-error
+             - log-info
+             - log-warn
+             - pwd
+             - release-locks
+             - run
+             - run-shell
+             - sleep
+             - start-rpc-timing
+             - start-timer
+             - stop-rpc-timing
+             - stop-timer
+             - while
+
+           If 'false' then these commands will not be enabled
+           in the yp-shell program.
+
+           This parameter cannot be changed at run-time with a
+           system variable.
+
+           The '--allow-shell' parameter must also be set to 'true'
+           for the 'run-shell' command to be enabled.
+          ";
+         type boolean;
+         default false;
+      }
+
+    }  // end sx:structure yangcli-pro
 
     /*************************************************************
      *
