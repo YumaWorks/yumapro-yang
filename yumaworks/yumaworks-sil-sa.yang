@@ -19,12 +19,18 @@ module yumaworks-sil-sa {
   description
     "YumaPro SIL Sub-Agent message definitions.
 
-     Copyright (c) 2014 - 2023 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2014 - 2024 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+  revision 2024-07-28 {
+    description
+      "23.10T-10: Add SIL-SA Global callbacks support:
+        - Add grouping for all the callbacks";
+  }
 
   revision 2024-02-23 {
     description
@@ -294,6 +300,42 @@ module yumaworks-sil-sa {
         description
           "The leaf specifies if there is an Edit Phase
            Complete Callback to register";
+      }
+    }
+
+    grouping glob-callbacks-parm {
+      description
+        "Specifies what global callbacks are enabled.";
+
+      leaf glob-action {
+        type empty;
+        description
+          "The leaf specifies if there is a Global
+           ACTION Callback to register";
+      }
+      leaf glob-edit2 {
+        type empty;
+        description
+          "The leaf specifies if there is a Global
+           EDIT2 Callback to register";
+      }
+      leaf glob-edit3 {
+        type empty;
+        description
+          "The leaf specifies if there is a Global
+           EDIT3 Callback to register";
+      }
+      leaf glob-get {
+        type empty;
+        description
+          "The leaf specifies if there is a Global
+           GET2 Callback to register";
+      }
+      leaf glob-rpc {
+        type empty;
+        description
+          "The leaf specifies if there is a Global
+           RPC Callback to register";
       }
     }
 
@@ -802,6 +844,7 @@ module yumaworks-sil-sa {
             }
 
             uses system-callbacks-parm;
+            uses glob-callbacks-parm;
           }
 
           container start-transaction {

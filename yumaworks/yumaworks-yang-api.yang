@@ -17,6 +17,11 @@ module yumaworks-yang-api {
     "This module contains abstract object definitions for 
      the YANG-API protocol.";
 
+  revision 2024-06-18 {
+    description
+       "Change type of leaf 'depth' from uint32 to uint16";
+  }
+
   revision 2015-06-19 {
     description
        "Add yang leaf for root of schema retrieval for YANG-API";
@@ -87,7 +92,7 @@ module yumaworks-yang-api {
         type enumeration {
           enum unbounded;
         }
-        type uint32 {
+        type uint16 {
           range "1..max";
         }
       }

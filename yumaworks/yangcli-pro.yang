@@ -74,6 +74,27 @@ module yangcli-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+     revision 2024-08-01 {
+       description
+         "23.10T-11:
+          -  Add subscribe command.
+          -  Add unsubscribe command.
+          -  Add show subscriptions command.";
+     }
+
+     revision 2024-07-26 {
+       description
+         "23.10-11:
+           -  Add --match-names-exec-mode parameter.
+         ";
+     }
+
+     revision 2024-06-04 {
+       description
+         "23.10-9:
+           -  Add --ypshell-exec-ok parameter.
+         ";
+     }
 
      revision 2024-04-04 {
        description
@@ -1189,6 +1210,7 @@ module yangcli-pro {
       uses ywapp:MatchParms {
         refine match-names {
           default one-nocase;
+          /* This parameter only affects config mode. */
         }
         refine alt-names {
           default true;
@@ -1196,6 +1218,17 @@ module yangcli-pro {
         refine wildcard-keys {
           default false;
         }
+      }
+
+      leaf match-names-exec-mode {
+        type ywt:NameMatchMode;
+        default exact;
+        description
+          "Match mode to use for UrlPath name searches
+           in exec mode.
+
+           This only affect XPath name matches and
+           not command and parameter name matches.";
       }
 
       uses ywapp:WithTermMsgParm;
@@ -3777,6 +3810,142 @@ module yangcli-pro {
       }
     }
 
+    rpc subscribe {
+      description
+        "Subscribe to a server event stream or datastore data
+
+         - subscribe stream NETCONF
+         - subscribe stream my-stream1
+         - subscribe data /interfaces-state
+         - subscribe data /interfaces-state refresh-rate=500
+        ";
+      input {
+        choice subscribe-choice {
+          mandatory true;
+          case stream {
+            leaf stream {
+              mandatory true;
+              type ywt:admin-string;
+              description
+                "Name of an event stream for the subscription";
+            }
+            leaf filter {
+              type string;
+              description
+                "Filter path string or named filter name";
+            }
+          }
+          case datastore {
+            leaf data {
+              type string;
+              mandatory true;
+              description
+                "Contains a RESTCONF style path string for
+                 the data for this subscription.
+
+                 - The module name should appear in the first segment
+                   but if not then first match will be used.
+                ";
+            }
+
+            leaf datastore {
+              type string;
+              default "operational";
+              description
+                "Contains the datastore for this subscription.
+                 Supported values:
+
+                   - candidate
+                   - running
+                   - intended
+                   - operational
+
+                ";
+            }
+
+            leaf refresh-rate {
+              type uint16 {
+                range "1 .. max";
+              }
+              units "centiseconds";
+              default 1000;   // 10 seconds
+              description
+                "Requested refresh rate for this subscription.
+                 For an on-change subscription this is the
+                 dampening-period.";
+            }
+
+            leaf on-change {
+              type boolean;
+              default true;
+              description
+                "If true, then use an on-change subscription,
+                 if available on the server. If not available then use
+                 a periodic subscription instead.
+
+                 If false, then do not use an on-change subscription,
+                 even if it is available on the server.
+                 Use 'periodic' instead.";
+            }
+          }
+        }
+        leaf description {
+          type string;
+          description
+            "Administrative description for this subscription";
+        }
+      }
+    }
+
+    rpc unsubscribe {
+      description
+        "Unsubscribe 1 of:
+          - unsubscribe stream my-stream1
+          - unsubscribe data /interfaces-state
+          - unsubscribe id 17
+         ";
+      input {
+        choice unsubscribe-choice {
+          mandatory true;
+          case stream {
+            leaf stream {
+              type ywt:admin-string;
+              mandatory true;
+              description
+                "Unsubscribe from this event stream";
+            }
+            leaf filter {
+              type string;
+              description
+                "Filter string used in the subscribe if any was used";
+            }
+          }
+          case datastore {
+            leaf datastore {
+              type string;
+              default "operational";
+              description
+                "Unsubscribe the subscription for this datastore.";
+            }
+            leaf data {
+              type string;
+              mandatory true;
+              description
+                "Unsubscribe the subscription for this path string or
+                 filter name.";
+            }
+          }
+          leaf id {
+            // subscription-id from ietf-subscribed-notification
+            type uint32;
+            mandatory true;
+            description
+              "The subscription id  to be unsubscribed.";
+          }
+        }
+      }
+    }
+
     rpc device-cfg {
       description "Access a device configuration";
       input {
@@ -4400,6 +4569,12 @@ module yangcli-pro {
                named session. An empty string means show the
                variables for the current session.";
             type IdentifierOrZero;
+          }
+
+          leaf subscriptions {
+            description
+              "Show the current subscriptions for the current session.";
+            type empty;
           }
 
           leaf system {

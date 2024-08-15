@@ -15,6 +15,12 @@ module yumaworks-restconf {
     "This module contains abstract object definitions for
      the RESTCONF protocol.";
 
+
+  revision 2024-06-18 {
+    description
+       "Change type of leaf 'depth' from uint32 to uint16";
+  }
+
   revision 2024-02-15 {
     description
        "Add 'streams' leaf to restconf struct augment";
@@ -112,7 +118,7 @@ module yumaworks-restconf {
             description "All sub-resources will be returned.";
           }
         }
-        type uint32 {
+        type uint16 {
           range "1..max";
         }
       }

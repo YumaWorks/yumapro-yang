@@ -103,10 +103,18 @@ module yumaworks-event-stream {
            "Specifies the maximum number of notification events
             that will be saved in each notification replay buffer.
             The oldest entries will be deleted first.
-            The value 0 will cause the server to periodically
-            clean out the messages that have already been
-            delivered. The eventlog-size is per event stream,
-            not total size.
+            The value 0 will cause the server to store 1
+            message.
+
+            When this limit is reached then the oldest event will
+            be deleted, even if it has not been delivered
+            yet.
+
+            The eventlog-size is per event stream, not total size.
+
+            This parameter controls the number of buffered
+            notifications so do not queue more than this
+            many notifications at once from SIL or SIL-SA code.
 
             If this parameter is not provided then the default will be
             the value of the --eventlog-size CLI parameter. The default
