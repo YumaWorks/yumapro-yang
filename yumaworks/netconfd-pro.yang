@@ -36,12 +36,22 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+
+    revision 2024-08-27 {
+      description
+        "23.10-12: Defined max-getbulk range with
+         an upper limit of 512.
+         - Add --sil-invoke-false-when-deletes CLI parameter.
+         Default is false for 23.10.
+        ";
+    }
+
     revision 2024-05-25 {
       description
         "23.10T-9:
          -  Add --disabled-protocols parameter
          -  Add --audit-log-localtime parameter
-         -  Add --disabled-imported-ok parameter
+         -  Add --disable-imported-ok parameter
         ";
     }
 
@@ -1825,11 +1835,12 @@ module netconfd-pro {
           "Specifies the maximum number of getbulk entries to
            request from a GET2 callback. This value will be used
            in the get2cb 'max_entries' field.
-           The value 0 is used to indicate there is no max and
-           the GET2 callback can return as many getbulk entries
-           as desired. This is the default for leaf-list
-           GET2 callbacks";
-        type uint32;
+           If set to 0, the internal limit of 512 entries will be
+           applied. This is the default behavior for leaf-list
+           GET2 callbacks.";
+        type uint32 {
+          range "0 .. 512";
+        }
         default 10;
       }
 
@@ -2455,6 +2466,18 @@ module netconfd-pro {
         default false;
       }
 
+      leaf sil-invoke-false-when-deletes {
+        description
+          "If 'true' then a SIL or SIL-SA callback will be
+           invoked for false-when auto-deletion data nodes during
+           the edit transaction.
+
+           If 'false' then a SIL or SIL-SA callback will not be
+           invoked for false-when auto-deletion data nodes.";
+        type boolean;
+        default false;
+      }
+
       leaf sil-invoke-for-defaults {
         description
           "If 'true' then a SIL or SIL-SA callback
@@ -2466,7 +2489,6 @@ module netconfd-pro {
         type boolean;
         default true;
       }
-
 
       leaf sil-missing-error {
         description
