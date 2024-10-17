@@ -26,6 +26,13 @@ module yumaworks-sil-sa {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+
+  revision 2024-09-13 {
+    description
+      "Introduced in 22.10-25, 23.10-13, YPW-2273:
+       - Add a pre-process bit to the get-request flags";
+  }
+
   revision 2024-07-28 {
     description
       "23.10T-10: Add SIL-SA Global callbacks support:
@@ -1181,6 +1188,12 @@ module yumaworks-sil-sa {
                   description
                     "This is a <get-data> operation and the
                      with-origin parameter is selected.";
+                }
+                bit pre-process {
+                  description
+                    "Indicate that Subtree filter is doing
+                     Pre process Selection nodes to see if the server
+                     should start to write the parent node or not.";
                 }
               }
               default "";
