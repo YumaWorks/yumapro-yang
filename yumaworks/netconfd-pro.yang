@@ -37,6 +37,16 @@ module netconfd-pro {
      http://opensource.org/licenses/BSD-3-Clause";
 
 
+    revision 2024-10-19 {
+      description
+        "24.10-2:
+         - Add --sil-skip-global-edit-validate CLI parameter
+         - Add --sil-skip-global-edit-apply CLI parameter
+         - Add --with-confirmed-commit CLI parameter
+         - Add --warn-off-yang CLI parameter
+        ";
+    }
+
     revision 2024-08-27 {
       description
         "23.10-12: Defined max-getbulk range with
@@ -2532,6 +2542,28 @@ module netconfd-pro {
         default true;
       }
 
+      leaf sil-skip-global-edit-validate {
+        description
+          "If set to 'true', the server skips the Global Edit callbacks
+           invocation for the Validate Phase.
+           If 'false', the server invokes the Global Edit callbacks
+           for the Validate Phase as usual.
+           The default is 'false'.";
+        type boolean;
+        default false;
+      }
+
+      leaf sil-skip-global-edit-apply {
+        description
+          "If set to 'true', the server skips the Global Edit callbacks
+           invocation for the Apply Phase.
+           If 'false', the server invokes the Global Edit callbacks
+           for the Apply Phase as usual.
+           The default is 'false'.";
+        type boolean;
+        default false;
+      }
+
       leaf sil-skip-load {
         description
           "If present, the server will not invoke the SIL callbacks
@@ -3185,6 +3217,25 @@ module netconfd-pro {
            The 'true' setting should be used in most cases.";
         type boolean;
         default false;
+      }
+
+      uses ywapp:WarnOffYangParm;
+
+      leaf with-confirmed-commit {
+        description
+          "If set to 'true', then the :confirmed-commit capability
+           will be enabled and advertised to clients.
+
+           If set to 'false', then the :confirmed-commit capability
+           will not be enabled or advertised to clients.
+
+           If the --target=running parameter is used then this
+           parameter is ignored.
+
+           First release: 24.10-2
+          ";
+        type boolean;
+        default true;
       }
 
       leaf with-error-number {

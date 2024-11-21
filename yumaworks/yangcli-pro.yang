@@ -74,6 +74,13 @@ module yangcli-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+     revision 2024-11-09 {
+       description
+         "24.10-2:
+          -  Add --show-headers parameter.
+          -  Add --warn-off-yang parameter.";
+     }
+
      revision 2024-08-01 {
        description
          "23.10T-11:
@@ -2187,6 +2194,24 @@ module yangcli-pro {
            in case the default cannot be used.";
       }
 
+      leaf show-headers {
+        type boolean;
+        default true;
+        description
+          "If 'false' show the top-most data node if possible,
+           when displaying server responses.  The 'rpc-reply' container
+           and 'data' container will not be shown in this case.
+           Using this setting may cause regression tests to fail
+           which match the entire text response.
+
+           This is not done if there are multiple child nodes returned.
+           A header is only removed if there is exactly one child
+           node within it.
+
+           If 'true' the entire response message is shown.
+           This is current behavior. Introduced 24.10-2";
+      }
+
       leaf term-length {
         description
           "Specifies the length of the terminal to use for page
@@ -2282,6 +2307,8 @@ module yangcli-pro {
         type boolean;
         default true;
       }
+
+      uses ywapp:WarnOffYangParm;
 
       leaf with-notif-commands {
         description

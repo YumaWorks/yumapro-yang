@@ -25,6 +25,12 @@ module yumaworks-app-common {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2024-11-09 {
+       description
+         "24.10-2:
+           Add --warn-off-yang leaf to new WarnOffYangParm grouping.";
+    }
+
     revision 2023-03-06 {
        description
          "Add --tcp-connect-timeout leaf to new
@@ -1064,4 +1070,20 @@ module yumaworks-app-common {
           ";
       }
     }
+
+    grouping WarnOffYangParm {
+      leaf warn-off-yang {
+        type boolean;
+        default false;
+        description
+          "If 'true' then YANG compiler warnings will be disabled.
+           If 'false' then YANG compiler warnings will be enabled.
+           Overrides the warn-up and warn-error parameters for
+           YANG warnings. This parameter introduced in 24.10-2.
+          ";
+      }
+    }
+
+
+
 }

@@ -144,12 +144,17 @@ module yangdump-pro {
                debug:  print general debugging trace info
                debug2: print verbose debugging trace info
 
-     Copyright (c) 2010 - 2023 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2010 - 2024 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+    revision 2024-11-09 {
+      description
+        "24.10-2: Add --warn-off-yang parameter";
+    }
 
     revision 2024-05-21 {
       description
@@ -896,6 +901,8 @@ module yangdump-pro {
           type boolean;
           default true;
         }
+
+        uses ywapp:WarnOffYangParm;
 
         leaf xsd-schemaloc {
           description
