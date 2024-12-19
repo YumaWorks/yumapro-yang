@@ -74,6 +74,12 @@ module yangcli-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+     revision 2024-11-29 {
+       description
+         "24.10-3:
+          -  Add --hide-command parameter.";
+     }
+
      revision 2024-11-09 {
        description
          "24.10-2:
@@ -1823,7 +1829,12 @@ module yangcli-pro {
             For example, to disable the NETCONF <delete-config>
             operation:
 
-               disable-command ietf-netconf:delete-config
+               disable-command nc:delete-config
+
+            If the RPC name is unique then the module name prefix
+            is not required:
+
+               disable-command delete-config
             ";
          type nt:NcxIdentifier;
       }
@@ -2026,6 +2037,33 @@ module yangcli-pro {
           range "0 | 80 .. max";
         }
         default 80;
+      }
+
+      leaf-list hide-command {
+        description
+           "Specifies a top-level command that should be hidden
+            from the tab key, help key and help command.
+
+            If the value does not contain a module name prefix, then
+            the command will be disabled in all modules.
+
+            -  It will still be enabled but not visible to the user.
+            -  If a hidden command is used in a script or directly
+               from the command line it will be accepted.
+            -  This parameter is ignored if the same command
+               is also listed in a 'disable-command' parameter.
+
+            For example, to hide the NETCONF <delete-config>
+            operation:
+
+               hide-command nc:delete-config
+
+            For example, to hide the internal 'else' command:
+
+               hide-command yc:else
+
+            ";
+         type nt:NcxIdentifier;
       }
 
       leaf history-file {
