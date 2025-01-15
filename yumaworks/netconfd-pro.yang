@@ -36,6 +36,13 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2024-12-21 {
+      description
+        "24.10-4:
+         - Add --tls-common-auth CLI parameter
+        ";
+    }
+
 
     revision 2024-10-19 {
       description
@@ -3073,6 +3080,33 @@ module netconfd-pro {
          type string {
             length "1 .. 256";
          }
+      }
+
+      leaf tls-common-auth {
+        description
+          "Specifies if TLS Common Authentication mode should be
+           used instead of the required Mutual Authentication mode.
+           This mode is intended as a temporary measure if client
+           certificates cannot be properly generated and installed
+           at the moment.
+
+           If 'true', then the server will not send a Certificate Request
+           to the client.  No client certificate will be received or checked.
+           The username 'admin' will be assigned to the session.
+
+           Warning! Setting this parameter to 'true' violates
+           the NETCONF standard!  No client verification will be done!
+           Any client will be accepted.
+
+           If 'false' then normal mutual authentication will be done.
+
+           There are no operations to change this parameter at run-time.
+           The server must be re-booted with this parameter changed
+           to switch between authentication modes.
+
+           Introduced: 24.10-4";
+        type boolean;
+        default false;
       }
 
       leaf tls-debug {
