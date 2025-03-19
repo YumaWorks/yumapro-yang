@@ -74,6 +74,13 @@ module yangcli-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+     revision 2025-03-07 {
+       description
+         "23.10-18:
+           -  Add --return-status parameter copied from netconfd-pro
+         ";
+     }
+
      revision 2024-11-29 {
        description
          "24.10-3:
@@ -2173,6 +2180,20 @@ module yangcli-pro {
 
            This parameter can be used instead of specifying individual
            disable-command parameters for the editing commands.";
+      }
+
+      leaf return-status {
+        description
+          "Controls whether the program will return the status code
+           or return zero, when it exits.
+
+           If 'true' then the program will return the 'status_t'
+           enumeration number for the error that occurred
+           or zero if no error occurred.
+
+           If 'false' then the program will always return zero.";
+        type boolean;
+        default false;
       }
 
       choice run-startup-mode {
