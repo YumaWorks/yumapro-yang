@@ -29,12 +29,26 @@ module netconfd-pro {
         This module is not advertised by the server.
         It contains only CLI parameters.
 
-     Copyright (c) 2010 - 2024 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2010 - 2025 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+    revision 2025-04-01 {
+      description
+        "23.10-19:
+         - Add --with-fsync CLI parameter
+        ";
+    }
+
+    revision 2025-03-26 {
+      description
+        "24.10-7:
+         - Add --rpc-request bit the audit-log-events
+        ";
+    }
 
     revision 2024-12-21 {
       description
@@ -980,7 +994,7 @@ module netconfd-pro {
           bit edit-data {
             description
              "Add plain display output of the data that is being
-              edited in an edit transaction. This bit has no affect
+              edited in an edit transaction. This bit has no effect
               unless the edit-candidate or edit-running bit is
               also set.
 
@@ -993,7 +1007,6 @@ module netconfd-pro {
               "Add an audit record for an RPC operation that causes
                an 'rpc-error' element to be returned to the client.
 
-
                If the 'rpc-summary' bit is enabled, then an rpc-error
                report will be added to the RPC summary records that
                have a 'status' or 'error'.
@@ -1001,6 +1014,18 @@ module netconfd-pro {
                If the 'rpc-summary' bit is not enabled then an RPC summary
                with rpc-error report will be added for RPC operations
                that cause an error to be returned.";
+          }
+          bit rpc-request {
+            description
+              "Add the input parameters from the RPC request message
+               to an 'rpc-error' audit record, when that event is
+               generated.
+
+               The data parsed from the request message is
+               saved. The raw input buffers and raw XML are
+               not available.
+
+               The input message is printed in plain format.";
           }
         }
         default "edit-running";
@@ -1010,7 +1035,12 @@ module netconfd-pro {
         description
           "Sets the minimum logging level needed to log datastore
            audit records to the audit log.  This does not affect
-           debug logging to the server console log.";
+           debug logging to the server console log.
+
+           Note that this is not a separate logging level.
+           The 'log-level' parameter must be set to this
+           value or higher for audit-log entries to be created.";
+
         type nt:NcDebugType;
         default info;
       }
@@ -3375,6 +3405,17 @@ module netconfd-pro {
            capability will be disabled.";
         type boolean;
         default true;
+      }
+
+      leaf with-fsync {
+        description
+          "If set to 'true', the server will flush data
+           to disk when saving the startup configuration.
+           This helps prevent corruption after unexpected
+           power loss, especially on filesystems like XFS.
+           If set to 'false', the flush is skipped for performance.";
+        type boolean;
+        default false;
       }
 
       leaf with-grpc {
