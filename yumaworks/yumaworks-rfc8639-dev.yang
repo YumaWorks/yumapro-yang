@@ -1,0 +1,46 @@
+module yumaworks-rfc8639-dev {
+
+    namespace "http://yumaworks.com/ns/yumaworks-rfc8639-dev";
+    prefix "ypdev";
+
+    import ietf-subscribed-notifications { prefix sn; }
+
+    organization "YumaWorks, Inc.";
+
+    contact
+        "Support <support@yumaworks.com>";
+
+    description
+         "YumaPro Deviations for RFC 8639
+          Subscription to YANG Notifications
+
+          These deviations only used in the server if
+          --with-new-yanglib=true CLI parameter (default) is used
+
+     Copyright (c) 2025, YumaWorks, Inc. All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject
+     to the license terms contained in, the BSD 3-Clause License
+     http://opensource.org/licenses/BSD-3-Clause";
+
+   revision 2025-06-28 {
+       description
+         "Copy SN deviations from yumaworks-yangpush-dev.yang";
+    }
+
+   deviation "/sn:subscriptions" {
+     description
+       "The dynamic subscription monitoring can only be monitored
+        using NMDA to include the operational values. This is not
+        supported yet.";
+     deviate not-supported;
+   }
+
+   deviation "/sn:modify-subscription/sn:input/sn:stop-time" {
+     description
+       "Modification of the stop-time parameter is not supported yet.";
+     deviate not-supported;
+   }
+
+}
