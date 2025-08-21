@@ -36,6 +36,13 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2025-08-08 {
+      description
+        "24.10-11:
+         - Update --tls-crl-missing-ok CLI parameter
+        ";
+    }
+
     revision 2025-04-01 {
       description
         "23.10-19:
@@ -3055,7 +3062,21 @@ module netconfd-pro {
            Not relevant unless tls-crl-mode is set to 'client'
            or 'ca'. If false, and CRL verification is enabled
            for the certificate, the TLS session will not be
-           accepted.";
+           accepted.
+
+           The following X.509 error code is ignored in the
+           verify function if this parameter is 'true':
+
+           - X509_V_ERR_UNABLE_TO_GET_CRL
+
+           Starting in release 24.10-11, the following error codes
+           are also ignored if this parameter is 'true':
+
+           -  X509_V_ERR_CRL_NOT_YET_VALID
+           -  X509_V_ERR_CRL_HAS_EXPIRED
+
+           ";
+
         type boolean;
         default false;
       }
