@@ -36,6 +36,13 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2025-08-23 {
+      description
+        "24.10-12:
+         - Add --tls-autosan-mode CLI parameter
+        ";
+    }
+
     revision 2025-08-08 {
       description
         "24.10-11:
@@ -3053,6 +3060,32 @@ module netconfd-pro {
         }
         // default is set in the agt_profile
         default candidate;
+      }
+
+      leaf tls-autosan-mode {
+        description
+          "If 'true' then the client certificate will be checked
+           for a X509v3 Subject Alternative Name field.  If found,
+           and it contains a valid username string, then this
+           string will be used as the user name for the session.
+
+           This is only done after the --cert-usermap CLI parameters and
+           yumaworks-cert-usermap module are checked for a configured
+           cert-to-name entry, and none is found.
+
+           If 'false' then the SAN fields will not be checked automatically.
+
+           Introduced: 24.10-12
+
+           Example: user-name is 'client1'
+
+            X509v3 extensions:
+              X509v3 Subject Alternative Name:
+                  DNS:client1
+
+           ";
+        type boolean;
+        default false;
       }
 
       leaf tls-crl-missing-ok {

@@ -10,6 +10,8 @@ module yumaworks-server {
 
     import yumaworks-extensions { prefix ywx; }
 
+    import yuma-ncx { prefix ncx; }
+
     organization "YumaWorks, Inc.";
 
     contact
@@ -19,8 +21,13 @@ module yumaworks-server {
        "Runtime access to netconfd-pro server parameters.
         The following parameters can be changed at run-time
         and the new value will be activated immediately.
+        The last value in effect when the server shuts dow will be
+        used at the next reboot.
 
         * allowed-user
+        * audit-log-events
+        * audit-log-level
+        * disabled-protocols
         * eventlog-size
         * hello-timeout
         * idle-timeout
@@ -30,6 +37,7 @@ module yumaworks-server {
         * max-getbulk
         * max-sessions
         * subsys-timeout
+        * tls-debug
 
         The rest of the CLI parameters can be edited for
         activation at the next reboot.
@@ -39,12 +47,25 @@ module yumaworks-server {
         the parameters will be saved when the server exits.
 
 
-     Copyright (c) 2017 - 2018, YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2017 - 2025, YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+    revision 2025-08-15 {
+        description
+          "24.10-12:
+            - Add reload-netconf-tls-keypair RPC operation
+            - Add 'user-write' extension to server container to
+              prevent deletion of the server container.
+            - Add leafs to immediate change list:
+               - audit-log-events
+               - audit-log-level
+               - tls-debug
+          ";
+    }
 
     revision 2018-04-21 {
         description
@@ -57,12 +78,75 @@ module yumaworks-server {
     }
 
     container server {
+      nacm:default-deny-all;
+      ywx:no-nvstore;
+      ncx:user-write "update";
+
       description
         "Runtime access to netconfd-pro CLI parameters for
          immediate change or activate-on-restart";
-      nacm:default-deny-all;
-      ywx:no-nvstore;
       uses ndpro:netconfd-pro-parms;
+    }
+
+    rpc reload-netconf-tls-keypair {
+      nacm:default-deny-all;
+      description
+        "Allows runtime replacement of the keys used for NETCONF over TLS.
+         It is expected that the following 'server' parameters are
+         updated as needed, or the files themselves have been updated:
+
+         -  netconf-tls-certificate
+         -  netconf-tls-key
+
+         There are 3 steps to this operation:
+         1)  load certificate
+         2)  load key
+         3)  verify keypair
+
+         The status of each step is returned as output data.
+         This function only returns 'rpc-error' if the 'invoke'
+         phase is never reached (e.g, NETCONF over TLS is not enabled).
+
+         The status enumeration from 'status_enum.h' is returned
+         as a positive integer:
+         -  0 == NO_ERR
+         -  274 == ERR_NCX_OPERATION_FAILED
+         -  2001 =- ERR_NCX_SKIPPED  (not reached)
+
+         If all 3 status leafs contain the value '0' then the operation
+         succeeded. Otherwise the status leafs should indicate what step
+         failed.
+
+         Note: No recovery operations are attempted at all!
+         Normally if any of these steps fails at boot-time, the server
+         will terminate right away.  In this case, the NETCONF over TLS
+         functionality will not be available until the key files are
+         correct.
+        ";
+
+      output {
+        leaf cert-status {
+          mandatory true;
+          type uint32;
+          description
+            "The numeric value of the return status for processing
+             the netconf-tls-certificate parameter.";
+        }
+        leaf key-status {
+          mandatory true;
+          type uint32;
+          description
+            "The numeric value of the return status for processing
+             the netconf-tls-key parameter.";
+        }
+        leaf verify-status {
+          mandatory true;
+          type uint32;
+          description
+            "The numeric value of the return status for verifying
+             the keypair with the SSL_CTX_check_private_key API.";
+        }
+      }
     }
 
 }
