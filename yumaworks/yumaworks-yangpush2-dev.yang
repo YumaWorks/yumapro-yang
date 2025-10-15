@@ -1,7 +1,7 @@
-module yumaworks-yangpush-dev {
+module yumaworks-yangpush2-dev {
 
-    namespace "http://yumaworks.com/ns/yumaworks-yangpush-dev";
-    prefix "ypdev";
+    namespace "http://yumaworks.com/ns/yumaworks-yangpush2-dev";
+    prefix "ypdev2";
 
     import ietf-subscribed-notifications { prefix sn; }
     import ietf-yang-push { prefix yp; }
@@ -21,22 +21,38 @@ module yumaworks-yangpush-dev {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
-   revision 2025-09-19 {
+
+   revision 2025-09-13 {
        description
-         "25.10-1: remove deviations for anchor-time";
+         "25.10-1:
+            Added support for anchor-time in subscriptions";
    }
 
-   revision 2019-11-22 {
+   revision 2025-02-21 {
        description
-         "Initial version: leave out /subscriptions container
-          for now.";
-    }
+         "24.10T-6:
+            Added support for configured subscriptions";
+   }
 
-   deviation "/sn:subscriptions" {
+   deviation "/sn:subscriptions/sn:subscription/sn:target/sn:stream/sn:configured-replay" {
      description
-       "The dynamic subscription monitoring can only be monitored
-        using NMDA to include the operational values. This is not
-        supported yet.";
+       "The replay feature for configured subscriptions is not supported.";
+     deviate not-supported;
+   }
+
+   deviation "/sn:subscriptions/sn:subscription/sn:stop-time" {
+     description
+       "The replay feature for configured subscriptions is not supported.";
+     deviate not-supported;
+   }
+
+   deviation "/sn:subscriptions/sn:subscription/sn:notification-message-origin" +
+             "/sn:address-originated/sn:source-address" {
+     description
+       "The source-address is not supported yet.
+        The server source IP address is used.
+        This will be supported in a future release and allow 1 of N
+        server addresses to be used.";
      deviate not-supported;
    }
 

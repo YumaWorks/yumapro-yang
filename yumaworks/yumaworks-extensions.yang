@@ -19,6 +19,13 @@ module yumaworks-extensions {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+  revision 2025-05-19 {
+    description
+       "24.10T-9:
+         - Add cli-enforce-table extension.
+         - Add cli-suppress-table extension.";
+  }
+
   revision 2024-04-04 {
     description
        "23.10-8:
@@ -170,6 +177,39 @@ module yumaworks-extensions {
           get-config source=running
           lock target=candidate
         }
+      ";
+  }
+
+  extension cli-enforce-table {
+    description
+      "Used within a list data definition statement
+       to indicate that the 'show' command should
+       print the server repsonse as a table, even
+       if it would be skipped for some reason.
+
+       There is no parameter for this extension.
+       Ignored unless the --show-table parameter is
+       set to 'true'.
+
+       This extension will override the
+       --show-table-force parameter setting
+       for the specified list object.
+      ";
+  }
+
+  extension cli-suppress-table {
+    description
+      "Used within a list data definition statement
+       to indicate that the 'show' command should
+       not print the server repsonse as a table.
+
+       There is no parameter for this extension.
+       Ignored unless the --show-table parameter is
+       set to 'true'.
+
+       This extension will override the
+       --show-table-force parameter setting
+       for the specified list object.
       ";
   }
 

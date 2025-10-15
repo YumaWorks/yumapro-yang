@@ -144,12 +144,21 @@ module yangdump-pro {
                debug:  print general debugging trace info
                debug2: print verbose debugging trace info
 
-     Copyright (c) 2010 - 2024 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2010 - 2025 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+    revision 2025-03-12 {
+      description
+        "24.10T-7:
+          -  Add --sid-generate-file parameter
+          -  Add --sid-finalize parameter
+          -  Add --megarange-file parameter
+          -  Add --megarange-action parameter";
+    }
 
     revision 2024-11-09 {
       description
@@ -558,6 +567,49 @@ module yangdump-pro {
           type TocType;
         }
 
+        leaf megarange-action {
+          description
+            "Specifies the action to perform using the
+             megarange-file parameter file.
+
+             The following actions are defined:
+
+             - template: generate a megarange.json template file
+
+             - new: generate the data for an initial control file using
+               the header information.  Uses 350 SIDs per
+               allocation.
+
+             - autonew: Automatically generate the header and data
+               an initial control file and SID file set.
+
+             - new-sid: generate all the initial SID files
+
+             The following operations are planned for a future release:
+
+             - update: generate the updated data for an existing
+               control file using the header and data information
+
+             - autoupdate: generate the updated data and SID files
+               for an existing control file and set of SID files
+               using the header and data information.
+
+             - update-sid: generate all the updated SID files
+               based on the specified megarange file.";
+
+          type string;
+        }
+
+        leaf megarange-file {
+          description
+            "Specifies a YANG Megarange file for a
+             YANG repo. The string contains a filespec for
+             the Megarange control file to be used for
+             megarange parameter input.";
+
+          type string;
+        }
+
         leaf objview {
           description
              "Determines how objects are generated in HTML and
@@ -601,6 +653,35 @@ module yangdump-pro {
              entire path to the object into the name.";
           type boolean;
           default true;
+        }
+
+        leaf sid-finalize {
+          description
+            "If present, generate a final published YANG SID file.
+             Argument is the same as pyang parameter.
+
+             If missing then an unstable SID file will be generated";
+          type empty;
+        }
+
+        leaf sid-generate-file {
+          description
+            "If present, generate a YANG SID file for a
+             YANG module.  Argument is the same as pyang
+             parameter.
+
+              The string follows the format:
+
+               [range-start]:[range-size]
+
+             If the range starts at 10000 and the
+             range size is 50 then the string 10000:50
+             would be used.
+
+             There must be one --module parameter entered
+             or the request will be rejected with an error.";
+
+          type string;
         }
 
         leaf show-errors {

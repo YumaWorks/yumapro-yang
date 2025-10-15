@@ -20,6 +20,13 @@ module yumaworks-types {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2025-02-14 {
+       description
+         "24.10T-6:
+            - Change yang-sid-mode and lsid-mode to match current
+              design";
+    }
+
     revision 2024-04-14 {
        description
          "21.10T-8:
@@ -390,12 +397,14 @@ module yumaworks-types {
         enum lsid {
           description
             "Use LSID SID generation mode for SID assignments.
-             For publisher only.";
-        }
-        enum lsid-file {
-          description
-            "Use LSID SID file generation mode for SID assignments.
-             For subscriber only.";
+             Starting in 24.10T-6:
+               - SID files will be used if found, for each
+                 module loaded.
+               - LSIDs will be generated only for the objects
+                 in modules where no SID file was found.
+               - The starting point for LSID asignment is
+                 implementation-specific.";
+
         }
       }
       description
@@ -421,8 +430,13 @@ module yumaworks-types {
         }
       }
       description
-        "If the yang-sid-mode is 'lsid' or 'lsid-file' then the server
-         implementation will pick a SID size at build-time.";
+        "If the yang-sid-mode is 'lsid' then the server
+         implementation will pick a SID size at build-time.
+
+         Starting in 24.10T-6:
+           - This object is not used
+           - All LSIDs are 64 bits in length
+           - The value 'lsid64' will always be returned.";
     }
 
     typedef admin-string {

@@ -5,6 +5,7 @@ module yumaworks-sil-sa {
   prefix "ysil";
 
   import ietf-yang-structure-ext { prefix sx; }
+  import ietf-yang-types { prefix yang; }
   import yuma-types { prefix yt; }
   import yumaworks-types { prefix ywt; }
   import yumaworks-ycontrol { prefix yctl; }
@@ -26,11 +27,16 @@ module yumaworks-sil-sa {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
-
   revision 2024-09-13 {
     description
       "Introduced in 22.10-25, 23.10-13, YPW-2273:
        - Add a pre-process bit to the get-request flags";
+  }
+
+  revision 2024-07-31 {
+    description
+      "Add push-path registration support.
+       Add push-request message.";
   }
 
   revision 2024-07-28 {
@@ -653,6 +659,130 @@ module yumaworks-sil-sa {
         "Specifies the Mount Point Instance for the request";
     }
 
+    grouping sa-push-parms {
+      leaf observer-id {
+        type uint32;
+        description
+          "assigned observer ID for the subsystem.";
+      }
+      leaf subscription-id {
+        type uint32;
+        mandatory true;
+        description
+          "The subscription ID that is requesting this
+           object. Only one object per subscription is
+           supported but unlimited subscriptions are allowed.
+           This parameter must be saved by the SIL-SA
+           callback function to identify the subscription
+           in followup operations after the initial 'start'";
+      }
+      leaf push-op {
+        type enumeration {
+          enum start {
+            description
+              "Start generating push-data events using the
+               subscription parameters provided. Only a
+               'suspend' or 'finish' operation can be done
+               after this operation completes.";
+          }
+          enum suspend {
+            description
+              "Suspend the current subscription.
+               Remember the settings in case the 'resume'
+               operation is received.  Only a 'resume' or
+               'finish' operation can be done after this
+               operation completes.";
+          }
+          enum resume {
+            description
+              "Resume the current subscription, using the
+               saved settings from the 'start' operation.
+               Only a 'suspend' of 'finish' operation can
+               be done afer this operation completes.";
+          }
+          enum finish {
+            description
+              "Stop generating push-data events and clear
+               the current subscription. Only a 'start'
+               operation can be done after this operation
+               completes.";
+          }
+        }
+        mandatory true;
+        description
+          "The PUSH operation being requested by the server.";
+      }
+      leaf push-target {
+        type string;
+        description
+          "Contains a path string representing the object that
+           is the subject of this push management request.";
+      }
+      leaf push-type {
+        type enumeration {
+          enum on-change;
+          enum periodic;
+        }
+        default on-change;
+        description
+          "The PUSH operation being requested by the server.";
+      }
+      leaf push-filter {
+        type yang:xpath1.0;
+        description
+          "The YANG Push filter provided by the client.
+           A subtree filter will be converted to its XPath
+           equivalent expression.  This leaf will only be
+           present for the 'start' operation.";
+      }
+      leaf push-period {
+        type uint32;    // yp:centiseconds;
+        units "centiseconds";
+        mandatory true;
+        description
+          "If the push-type is periodic then this represents
+           the requested update interval. If the push-type
+           is on-change then this represents the requested
+           dampening period. This leaf will only be present
+           for the 'start' operation.";
+      }
+      leaf sync-on-start {
+        type boolean;
+        default true;
+        description
+          "The sync-on-start parameter. Only applies to on-change
+           subscriptions. This leaf will only be present
+           for the 'start' operation.";
+      }
+      leaf send-protocol {
+        type enumeration {
+          enum ycontrol {
+            description
+              "Push updates are sent to the main server
+               using YControl protocol messages.  Updates
+               are not limited in size at all.";
+          }
+          enum udp-notif {
+            description
+              "Push updates are sent to list of receivers
+               using UDP-Notif protocol.  Updates will
+               be generated with max 64K payloads.";
+          }
+        }
+      }
+      leaf-list receiver {
+        type string;
+              description
+                "Used only for udp-notif protocol.
+                 Contains the host or IP address plus colon
+                 char plus the port number
+
+                 192.168.0.20:8300
+                 push-server.mydomain.com:8033
+                ";
+       }
+    }
+
     sx:augment-structure
        "/yctl:ycontrol/yctl:message-payload/yctl:payload/yctl:payload" {
       container sil-sa {
@@ -797,6 +927,13 @@ module yumaworks-sil-sa {
                 description
                   "Path string for object for a GET callback";
               }
+              leaf-list push-path {
+                type string;
+                description
+                  "Path string for object for a PUSH callback.
+                   This path identifies a container or list that
+                   can support a YANG Push subscription.";
+              }
               leaf-list rpc-name {
                 type yt:NcxName;
                 description
@@ -848,6 +985,7 @@ module yumaworks-sil-sa {
                   }
                 }
               }
+
             }
 
             uses system-callbacks-parm;
@@ -1656,6 +1794,21 @@ module yumaworks-sil-sa {
             uses commit-phase-parm;
             uses commit-type-parm;
           } // container commit-completeness-hook
+
+          container push-request {
+            description
+             "Message type: server-request;
+              Purpose: Send a request to manage YANG Push subscriptions.
+              A PUSH callback will be invoked to control the generation
+              of push-data event messages.  Only the <operational>
+              datastore is supported for PUSH callback support.
+              Expected Response Message: <ok> or <error>.";
+
+            uses user-id-obj;
+            uses client-addr-obj;
+            uses sa-push-parms;
+
+          } // container push-request
 
         } // choice message-type
       } // container sil-sa

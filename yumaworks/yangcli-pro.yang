@@ -67,12 +67,38 @@ module yangcli-pro {
            present, and then the program will exit.  Any interactive
            input breaks in the script or command will be skipped.
 
-     Copyright (c) 2010 - 2024 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2010 - 2025 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+     revision 2025-06-29 {
+       description
+         "24.10T-11:
+           -  Add --with-yanglib-cache CLI parameter.
+           -  Add yanglib-cache command.
+           -  Add show yanglib-cache sub-command.
+         ";
+     }
+
+     revision 2025-05-30 {
+       description
+         "24.10T-9:
+           -  Add --python-command parameter
+           -  Add --custom-command parameter
+         ";
+     }
+
+     revision 2025-05-17 {
+       description
+         "24.10T-9:
+           -  Add --show-table parameter
+           -  Add --show-table-force parameter
+           -  Add --show-table-max-colsize parameter
+         ";
+     }
 
      revision 2025-03-07 {
        description
@@ -81,17 +107,34 @@ module yangcli-pro {
          ";
      }
 
+     revision 2025-02-26 {
+       description
+         "24.10T-6:
+          -  Change callhome-address type to ip-address-no-zone
+          -  Add --collector-enabled parameter for UDP-Notif Collector
+          -  Add CollectorParms grouping for UDP-Notif Collector
+          -  Add collector command to start and stop at run-time
+          -  Add encoding parameter to the subscribe command";
+     }
+
      revision 2024-11-29 {
        description
          "24.10-3:
-          -  Add --hide-command parameter.";
+          -  Add --hide-command parameter.
+          24.10T-3:
+          -  Add show command control parameters
+             --show-builtin
+             --show-data
+             --show-datastore
+         ";
      }
 
      revision 2024-11-09 {
        description
          "24.10-2:
           -  Add --show-headers parameter.
-          -  Add --warn-off-yang parameter.";
+          -  Add --warn-off-yang parameter.
+         ";
      }
 
      revision 2024-08-01 {
@@ -1159,7 +1202,7 @@ module yangcli-pro {
           "Identifies the IP address that should be used to listen
            for callhome connections. Ignored if callhome-enabled
            is false.";
-        type inet:ip-address;
+        type inet:ip-address-no-zone;
         //default "0.0.0.0";  applies in uses-stmt if needed
       }
 
@@ -1181,6 +1224,30 @@ module yangcli-pro {
            for NETCONF over TLS callhome connections. Ignored if
            callhome-enabled is false.";
         reference "RFC 8071";
+      }
+    }
+
+    grouping CollectorParms {
+      description
+        "Parameters used to configure the UDP Push Collector.
+         This can be done from the CLI parameters or the
+         'collector' command.";
+
+      leaf collector-address {
+        description
+          "Identifies the IP address that should be used to listen
+           for UDP-Notif messages. Ignored if collector-enabled
+           is false.";
+        type inet:ip-address-no-zone;
+        //default "0.0.0.0";  applies in uses-stmt if needed
+      }
+
+      leaf collector-port {
+        type inet:port-number;
+        default 10830;  // no standard assigned port
+        description
+          "Identifies the UDP port that should be used to listen
+           for UDP-Notif packets. Ignored if collector-enabled is false.";
       }
     }
 
@@ -1752,6 +1819,21 @@ module yangcli-pro {
         default false;
       }
 
+      uses CollectorParms {
+        refine collector-address {
+          default "0.0.0.0";
+        }
+      }
+
+      leaf collector-enabled {
+        description
+          "If true, then yangcli-pro will listen for UDP-Notif
+           messages on the UDP socket identified by the
+           collector-address and collector-port parameters.";
+        type boolean;
+        default false;
+      }
+
       leaf config-edit-mode {
         description
           "Controls how edits are applied during config mode.";
@@ -1799,6 +1881,49 @@ module yangcli-pro {
         }
         default 3;
       }
+
+      leaf-list custom-command {
+        description
+          "Specifies the module and name of a custom command
+           that should be added to the command parser.
+
+           This string is structured. It has 3 fields:
+
+              module-name ':' rpc-name [ '/' scope-id ]
+
+           Refer to the 'Custom Commands section of the user
+           manual for complete details.
+
+           Examples:
+
+              example-mymod:*/S
+
+              Load all RPC statements found in example-mymod
+              as top-level commands.
+
+
+              example-command1:set-retry-interval/T
+              example-command1:test-retry-interval/S
+
+              Load set-retry-interval in example-command1
+              as a top-level command. Load test-retry-interval
+              in example-command1 as a session-level command.
+
+           Run-time Example:
+
+              If the command test-retry-interval is entered,
+              then the command parser will check for a script
+              as follows:
+
+                1) Python: Find 'test-retry-interval.py'
+                2) Bash: Find 'test-retry-interval.sh'
+                2) yangcli: Find 'test-retry-interval'
+
+          ";
+
+        type string;
+      }
+
 
       leaf with-enable-mode {
         description
@@ -2165,6 +2290,14 @@ module yangcli-pro {
         default normal;
       }
 
+      leaf python-command {
+        type string;
+        default "/usr/bin/python";
+        description
+          "The Python program to invoke when a Python script
+           is invoked.";
+      }
+
       leaf restrict-edit-mode {
         type boolean;
         default false;
@@ -2253,6 +2386,98 @@ module yangcli-pro {
            in case the default cannot be used.";
       }
 
+      leaf show-builtin {
+        type boolean;
+        default true;
+        description
+          "Controls how the 'show' command functions at all times.
+           If false, the show command will not check if the command line
+           represents a built-in show command. In this case
+           all built-in show commands are disabled.
+
+           If true, the show command will check if the command line
+           represents parameters for the built-in show command.
+
+           The '$$show-builtin' system variable can be used
+           to change this parameter at runtime.
+
+           Introduced 24.10T-3.
+          ";
+      }
+
+      leaf show-data {
+        type boolean;
+        default true;
+        description
+          "Controls how the 'show' command functions if the
+           current session is connected to a server.
+
+           If false, the show command will not check if the
+           command line represents server datastore data at all.
+
+           If true, the show command will check if the command line
+           represents server datastore data after checking
+           if the command line contains parameters for
+           the built-in show command.
+
+           The 'match-names' parameter is used to control how
+           matches are determined for the data node names.
+
+           The '$$show-data' system variable can be used
+           to change this parameter at runtime.
+
+           Introduced 24.10T-3.
+          ";
+      }
+
+      leaf show-datastore {
+        type boolean;
+        default true;
+        description
+          "Controls how the 'show' command functions if the
+           current session is connected to a server.
+
+           This parameter is ignored unless the 'show-data'
+           parameter is set to 'true.
+
+           If false, the show command will not check if the
+           first command line parameter represents a datastore name.
+
+           If true, the show command will check if the first command
+           line parameter represents server a datastore name.
+           If so, then the rest of the command line represents
+           data nodes within that datastore to retrieve.
+
+           The '$$show-datastore' system variable can be used
+           to change this parameter at runtime.
+
+           The 'match-names' parameter is used to control how
+           matches are determined for the datastore name.
+
+           If a datastore other than 'operational' is epecified
+           then the allowed data nodes will be restricted to
+           configuration data nodes.
+
+           The datastore name must be at least 3 characters long
+           or the string will not be treated as a datastore name.
+           Name Natch Example:
+              - match-names = one-nocase (default)
+              - 'show run' will be treated as 'show running'
+              - 'show ru' will be interpreted as 'show ru'
+
+           Datastore names supported depends on the current session
+           -  'running' is always enabled
+           -  'candidate' is enabled if the :candidate capability is
+              supported by the server
+           -  'startup' is enabled if the :startup capability is
+              supported by the server
+           -  'intended' is enabled if NMDA is supported by the server
+           -  'operational' is enabled if NMDA is supported by the server
+
+           Introduced 24.10T-3.
+          ";
+      }
+
       leaf show-headers {
         type boolean;
         default true;
@@ -2267,8 +2492,91 @@ module yangcli-pro {
            A header is only removed if there is exactly one child
            node within it.
 
+           The '$$show-headers' system variable can be used
+           to change this parameter at runtime.
+
            If 'true' the entire response message is shown.
            This is current behavior. Introduced 24.10-2";
+      }
+
+      leaf show-table {
+        type boolean;
+        default true;
+        description
+          "If 'true' show eligible data in tabular format.
+
+           If 'false' then do not display any data in tabular format.
+
+           The '$$show-table' system variable can be used
+           to change this parameter at runtime.
+
+           Refer to the user manual for details.";
+      }
+
+      leaf show-table-force {
+        type enumeration {
+          enum off {
+            description
+              "Do not force table display at all.";
+          }
+          enum skipped {
+            description
+              "Allow columns to be skipped that cannot be displayed
+               in the table, such as choices, containers, and
+               leaf-lists.";
+          }
+          enum width {
+            description
+              "Allow table to be displayed even if too wide.
+               Also allows skipped nodes";
+          }
+        }
+        default "skipped";
+        description
+          "Controls how table display is forced in show data mode.
+
+           This parameter is ignored if the 'show-data' or 'show-table'
+           parameter is false.
+
+           If the 'cli-suppress-table' YANG extension is in affect
+           for the targeted list object then the table output is
+           not used and this parameter is ignored.
+
+           If the 'cli-enforce-table' YANG extension is in affect
+           for the targeted list object then the table output is
+           used and this parameter is ignored.
+
+           The '$$show-table-force' system variable can be used
+           to change this parameter at runtime.
+
+           Refer to the user manual for details.";
+      }
+
+      leaf show-table-max-colsize {
+        type uint8 {
+           range "12 .. max";
+        }
+        default 30;
+        description
+          "Sets the maximum width to display for a column.
+           Data will be truncated within a table cell if the length
+           is greater than this amount.
+
+           The actual column width is determined by the width required
+           by the header and all the data in the server response
+           for a given leaf.
+
+           If the column width is not wide enough for the header line then
+           the header name will be truncated the same as a table cell.
+
+           If the output is truncated because the column width is not
+           large enough then the last character printed for that
+           table cell will be the '*' character.
+
+           The '$$show-table-max-colsize' system variable can be used
+           to change this parameter at runtime.
+
+           Refer to the user manual for details.";
       }
 
       leaf term-length {
@@ -2380,6 +2688,23 @@ module yangcli-pro {
         type boolean;
         default false;
       }
+
+      leaf with-yanglib-cache {
+        type boolean;
+        description
+          "If 'true' then relevant YANG library information
+           from a NETCONF session will be cached to disk so that
+           it can be reused (if possible) when a session to that
+           server is started again.
+
+           If 'false' then the YANG library information will not
+            be saved to disk when a session is started (and the
+            cache entry does not exist).
+
+           This parameter is required to simplify UDP-Notif
+           Collector configuration.";
+        default true;
+     }
 
       leaf-list yangmap {
         description
@@ -2764,6 +3089,60 @@ module yangcli-pro {
         }
       }
     }
+
+    rpc collector {
+       description
+         "Access and control the UDP-Notif Collector.
+           - collector start
+           - collector stop
+         ";
+       input {
+         choice collector-input {
+           mandatory true;
+           case start {
+             leaf start {
+               mandatory true;
+               type empty;
+               description
+                 "Create and start the UDP-Notif server.
+                  If it already exists then an error will be returned
+                  unless the 'restart-ok' parameter is also present.";
+             }
+             uses CollectorParms {
+               description
+                 "If the parameter is set then it is used,
+                  otherwise the global CLI parameter value
+                  is used";
+             }
+             leaf restart-ok {
+               type empty;
+               description
+                 "If present, then it is OK to stop the UDP-Notif server
+                  if running, and restart it.  Otherwise it will
+                  be an error to start the CallHome server if it is
+                  already running.";
+             }
+           }
+           case status {
+             leaf status {
+               mandatory true;
+               type empty;
+               description
+                 "Show the status of the UDP Notif Collector.";
+             }
+           }
+           case stop {
+             leaf stop {
+               mandatory true;
+               type empty;
+               description
+                 "Stop the UDP-Notif Collector.";
+             }
+           }
+         }
+       }
+    }
+
 
     rpc connect {
       description "Connect to a NETCONF server.";
@@ -3975,6 +4354,26 @@ module yangcli-pro {
             }
           }
         }
+
+        leaf encoding {
+          type enumeration {
+            enum xml {
+              description "Use XML encoding";
+            }
+            enum json {
+              description "Use JSON encoding";
+            }
+            enum cbor {
+              description "Use CBOR encoding";
+            }
+          }
+          default xml;
+          description
+            "The desired message encoding.
+             The subscribe request will be rejected if the value is
+             not supported by the server.";
+        }
+
         leaf description {
           type string;
           description
@@ -4693,6 +5092,12 @@ module yangcli-pro {
               "Show yangcli-pro version info.";
             type empty;
           }
+
+          leaf yanglib-cache {
+            description
+              "Show YANG library cache info.";
+            type empty;
+          }
         }  // end choice
         uses ncxapp:HelpMode;
       }
@@ -5317,6 +5722,31 @@ module yangcli-pro {
 
           }  // case create
         }
+      }
+    }
+
+    rpc yanglib-cache {
+      description
+        "Clear or show 1 or all entries from the YANG Library cache.
+         There are 4 forms of this command:
+           yanglib-cache clear
+           yanglib-cache delete somehost.830
+        ";
+
+      input {
+        choice yanglib-cache-input {
+          mandatory true;
+          leaf clear {
+             description
+                "Delete all stored YANG cache directories.";
+             type empty;
+          }
+          leaf delete {
+             description
+                "Delete one stored YANG cache directory.";
+             type string;
+          }
+        }  // choice yanglib-cache-input
       }
     }
 

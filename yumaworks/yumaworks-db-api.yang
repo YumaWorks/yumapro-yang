@@ -137,6 +137,37 @@ module yumaworks-db-api {
                 operation.";
             }
 
+            leaf datastore {
+              type enumeration {
+                enum running;
+                enum operational;
+              }
+              default "running";
+              description
+                "Identifies the datastore source for the edit operation.";
+            }
+
+            leaf encoding {
+              type enumeration {
+                enum xml;
+                enum json;
+                enum cbor;
+              }
+              default "xml";
+              description
+                "Identifies the encoding of the provided value.";
+            }
+
+            leaf path-format {
+              type enumeration {
+                enum restconf;
+                enum yang-api;
+              }
+              default "yang-api";
+              description
+                "Identifies the instance identifier string format types.";
+            }
+
             leaf edit-type {
               type enumeration {
                 enum user {
@@ -242,8 +273,8 @@ module yumaworks-db-api {
             ncx:root;
             description
              "Message type: server-response;
-              Purpose: Provide the contents of the running
-              configuration contents
+              Purpose: Provide the contents of the running or operational
+              configuration contents.
 
               Expected Response Message: none";
 

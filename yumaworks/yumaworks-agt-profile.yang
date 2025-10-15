@@ -33,6 +33,11 @@ module yumaworks-agt-profile {
        ";
   }
 
+  revision 2023-02-27 {
+     description
+       "Add push-min-period and push-min-dampening leafs.";
+  }
+
   revision 2022-09-17 {
      description
        "Add new bits to all-booleans3 flag:
@@ -49,6 +54,7 @@ module yumaworks-agt-profile {
           bit11 agt_highres_event_time
        ";
   }
+
 
   revision 2020-02-13 {
      description
@@ -361,6 +367,18 @@ module yumaworks-agt-profile {
           bit13 agt_sil_skip_global_edit_apply
         ";
       }
+
+      leaf push-min-period {
+        type uint16;
+        description "The --push-min-period CLI parameter.";
+      }
+
+      leaf push-min-dampening {
+        type uint16;
+        description "The --push-min-dampening CLI parameter.";
+      }
+
+
 
     }  // container agt_profile
   } // grouping

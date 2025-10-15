@@ -1,0 +1,383 @@
+module yumaworks-sid-megarange {
+  yang-version 1.1;
+  namespace "urn:yumaworks:params:xml:ns:yang:yumaworks-sid-megarange";
+  prefix ysidmr;
+
+  import ietf-sid-file {
+    prefix sid;
+    reference
+      "RFC 9595: YANG Schema Item iDentifier (YANG SID)";
+  }
+  import ietf-yang-structure-ext {
+    prefix sx;
+    reference
+      "RFC 8791: YANG Data Structure Extensions";
+  }
+  import ietf-yang-types {
+    prefix yang;
+    reference
+      "RFC 6991: Common YANG Data Types";
+  }
+
+  organization "YumaWorks, Inc.";
+
+  contact
+      "Support <support at yumaworks.com>";
+
+  description
+     "SID Megarange Management support.
+
+      A megarange has 3 parts:
+
+      - header:  control information including relative location
+        of the files used.
+
+     -  assigments: The assignment list is an ordered list
+        of assignment blocks to manage allocation of the
+        megarange blocks to modules.
+
+     -  modules: The module list is an unordered list of
+        entries representing the YANG modules in the megarange.
+        Each module uses one or more assignments.
+
+     A megarange has some restrictions:
+
+     -  Maximum megarange size is 4G -1 SIDs
+     -  Maximum megarange allocation block size is 4G -1 SIDs
+
+
+  structure sid-megarange:
+    +-- name           yang:yang-identifier
+    +-- policy?        enumeration
+    +-- entry-point?   sid:sid
+    +-- size?          uint32
+    +-- contact?       string
+    +-- owner-pen?     uint32
+    +-- assign-type    enumeration
+    +-- repo-root?     string
+    +-- repo-folder*   string
+    +-- modpath?       string
+    +-- prefix*        yang:yang-identifier
+    +-- assignment* [entry-point]
+    |  +-- entry-point    sid-offset
+    |  +-- size           uint32
+    |  +-- used?          uint32
+    |  +-- module-name?   yang:yang-identifier
+    |  +-- description?   string
+    +-- module* [name]
+       +-- name         yang:yang-identifier
+       +-- revision?    sid:revision-identifier
+       +-- published?   boolean
+       +-- obsolete?    boolean
+       +-- source?      string
+       +-- used?        uint32
+
+      Copyright (c) 2025 YumaWorks, Inc. All rights reserved.
+
+      Redistribution and use in source and binary forms, with or
+      without modification, is permitted pursuant to, and subject
+      to the license terms contained in, the BSD 3-Clause License
+      http://opensource.org/licenses/BSD-3-Clause.
+
+     ";
+
+  revision 2025-03-21 {
+    description
+      "23.10T-7: Initial release";
+  }
+
+  sx:structure sid-megarange {
+    uses sid-megarange-contents;
+  }
+
+  typedef sid-offset {
+    type uint32;
+    description
+      "Represents the relative SID assignment within the
+       megarange.  The megarange entry-point is used to determine
+       the actual SID assignments, by adding the relative offset
+       to this value.";
+  }
+
+  grouping sid-megarange {
+    description
+      "A grouping that contains a YANG container
+       representing the file structure of a YANG
+       megarange file.";
+
+    container sid-megarange {
+      description
+        "A container representing the contents of a YANG megarange
+         structure.";
+      uses sid-megarange-contents;
+    }
+  }
+
+  grouping sid-megarange-contents {
+    description
+      "A grouping that defines the contents of a container that
+       represents the file structure of a YANG megarange file.";
+
+    uses sid-megarange-header;
+    uses sid-megarange-data;
+  }
+
+  grouping sid-megarange-header {
+    description
+      "A grouping that defines the header metadata for the megarange";
+
+    leaf name {
+      type yang:yang-identifier;
+      mandatory true;
+      description
+        "Name of the YANG megarange associated with this file.";
+    }
+
+    leaf policy {
+      type enumeration {
+        enum public {
+          description
+            "This is a public megarange.";
+        }
+        enum private {
+          description
+            "This is a private megarange.";
+        }
+        enum both {
+          description
+            "This megarange contains both public and private
+             assignments.";
+        }
+      }
+      default "public";
+      description
+        "The publication policy for the megarange.";
+    }
+
+    leaf entry-point {
+      type sid:sid;
+      description
+      "Lowest YANG SID available for assignment for this megarange.
+       Not used unless 'assign-type' is 'custom'.";
+    }
+
+    leaf size {
+      type uint32;
+      description
+        "Number of YANG SIDs available for assignment for this
+         megarange.  Not used unless the 'assign-type' is 'custom'";
+    }
+
+    leaf contact {
+      type string;
+      description
+        "Contact information for the megarange owner.";
+    }
+
+    leaf owner-pen {
+      type uint32 {
+        range "1 .. 999999";
+      }
+      description
+        "PEN Identifier of the owner of this megarange.
+         The low-numbered PEN range is assigned to this megarange
+         if the megarange type is 'pen-low'.
+         The high-numbered PEN range is assigned to this megarange
+         if the megarange type is 'pen-high'.
+         This leaf is ignored if the megarange type is any other value.";
+    }
+
+    leaf assign-type {
+      mandatory true;
+      type enumeration {
+        enum ietf {
+          description
+            "The IETF megarange defined in RFC 9595.
+             Includes SIDs 1 to 999,999.";
+        }
+        enum pen-low {
+          description
+            "The low-numbered megarange associated with the
+             PEN specified in the 'megarange-pen' leaf is
+             used to automatically specify the entry-point
+             and size values.
+
+             The owner-pen value must be 1 to 99,999
+             to use this assignment type.
+
+             PEN pp ppp is assigned megarange
+             3 ppp pp0 000 to 3 ppp pp9 999.
+
+             The static size is 10,000 SID entries.";
+        }
+        enum pen-high {
+          description
+            "The high-numbered megarange associated with the
+             PEN specified in the 'megarange-pen' leaf is
+             used to automatically specify the entry-point
+             and start values.
+
+             The owner-pen value must be 1 to 999,999
+             to use this assignment type.
+
+             PEN ppp ppp then can use the SID numbers
+             3pp ppp p00 000 to 3pp ppp p99 999.
+
+             The static size is 100,000 SID entries.";
+        }
+        enum custom {
+          description
+            "The megarange start and size are set manually.
+             The owner-pen is ignored if present.
+             The entry-point and size leafs must be present.";
+        }
+      }
+      description
+        "Mandatory leaf that specifies the type of megarange
+         assignment.";
+    }
+
+    leaf repo-root {
+      type string;
+      description
+        "Root of the YANG module repo or folder containing the YANG
+         modules for use in the megarange.
+
+         Example: yumapro-yang";
+    }
+
+    leaf-list repo-folder {
+      type string;
+      description
+        "The relative path within the repo-root for the actual root
+         of the megarange YANG modules and SID files.
+
+         If multiple entries exist then each one will be considered
+         part of the repo.
+
+         Example: yumaworks and netconfcentral";
+    }
+
+    leaf modpath {
+      type string;
+      description
+        "The search path for YANG modules and SID files if there
+         are external imports used. Not needed for modules
+         within the repo-root";
+    }
+
+    leaf-list prefix {
+      type yang:yang-identifier;
+      description
+        "Prefix used in YANG module file names for this megarange.
+         Includes the entire prefix including the trailing dash character.
+         For example 'ietf-' or 'bbf-'.
+
+         If present then only files with this prefix will be
+         automatically included in the megarange.
+
+         If multiple entries exist then they forma logical OR expression.";
+    }
+
+  }
+
+  grouping sid-megarange-data {
+    description
+      "A grouping that defines the contents of a megarange database.";
+
+    list assignment {
+      description
+        "Used to manage the SID range assignments made from this
+         megarange.";
+      key "entry-point";
+      leaf entry-point {
+        type sid-offset;
+        description
+          "Lowest YANG SID offset available for assignment
+           for this assignment range";
+      }
+
+      leaf size {
+        type uint32;
+        mandatory true;
+        description
+          "Number of YANG SIDs available for assignment
+           for this assignment range";
+      }
+
+      leaf used {
+        type uint32;
+        description
+          "Number of YANG SIDs already used for assignment
+           for this assignment range. This field is filled in
+           by the megarange file tool and not configured.";
+      }
+
+      leaf module-name {
+        type yang:yang-identifier;
+        description
+          "The name of the YANG module that is assigned this SID range";
+      }
+
+      leaf description {
+        type string;
+        description
+          "Optional metadata such as the allocation timestamp";
+      }
+    }
+
+    list module {
+      description
+        "Used to manage module lifecycle within the megarange";
+
+      key "name";
+      leaf name {
+        type yang:yang-identifier;
+        description
+          "The name of the YANG module that is part of the megarange";
+      }
+
+      leaf revision {
+        type sid:revision-identifier;
+        description
+          "The current revision date of the YANG module.";
+      }
+
+      leaf published {
+        type boolean;
+        default true;
+        description
+          "The module is currently considered final and not
+           a work-in-progress.";
+      }
+
+      leaf obsolete {
+        type boolean;
+        default false;
+        description
+          "The module is now obsolete and the SIDs in the
+           assignment-range entries for this module are
+           all obsolete.";
+      }
+
+      leaf source {
+        type string;
+        description
+          "Relative path from the repo-root and repo-folder
+           for this module. If present this filespec may
+           override the default search path.";
+      }
+
+      leaf used {
+        type uint32;
+        description
+          "Number of YANG SIDs already used for assignment
+           for this module. This field is filled in
+           by the megarange file tool and not configured.";
+      }
+
+    }
+  }
+
+
+}

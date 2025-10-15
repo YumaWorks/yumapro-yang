@@ -64,13 +64,26 @@ module netconfd-pro {
         ";
     }
 
+    revision 2025-02-14 {
+       description
+         "24.10T-6:
+            - Change yang-sid-mode leaf to match current design
+            - Add --with-yang-push2 CLI parameter
+            - Add --max-chunk-size parameter";
+    }
+
+    revision 2025-02-03 {
+      description
+        "Default for --sil-invoke-false-when-deletes CLI parameter
+         set back to false.";
+    }
+
     revision 2024-12-21 {
       description
         "24.10-4:
          - Add --tls-common-auth CLI parameter
         ";
     }
-
 
     revision 2024-10-19 {
       description
@@ -1891,6 +1904,36 @@ module netconfd-pro {
         default 10;
       }
 
+      leaf max-chunk-size {
+        description
+          "Specifies the size of session output buffer that should
+           be used in the server.  This will affect the size
+           of a NETCONF 1.1 chunk sent to any client
+           or subsystem session.
+
+           Setting this parameter to a high value can cause
+           fragmentation of IP packets.
+
+           Will apply to all NETCONF packets sent to the client.
+           This includes Push updates over the UDP-Notif transport
+           protocol.  If the MTU is 1500, then typically,
+           there will be 1472 bytes available for the UDP payload.
+
+           If a 'max-segment-size' leaf is not set for a UDP-Notif
+           receiver then this value will be used as the default.
+
+           Implementation restriction:
+
+           -  This range is restricted to 9000 in the 24.10T
+              release train.  It may be changed in a future release.";
+
+        type uint16 {
+          range "1000 .. 9000";
+        }
+        units "bytes";
+        default 1400;
+      }
+
       leaf max-getbulk {
         description
           "Specifies the maximum number of getbulk entries to
@@ -2534,7 +2577,11 @@ module netconfd-pro {
            the edit transaction.
 
            If 'false' then a SIL or SIL-SA callback will not be
-           invoked for false-when auto-deletion data nodes.";
+           invoked for false-when auto-deletion data nodes.
+
+           The default setting for this CLI parameter is false in the
+           23.10 and 24.10 release trains.
+           It is set to true only in 24.10T release train and later.";
         type boolean;
         default false;
       }
@@ -3720,6 +3767,25 @@ module netconfd-pro {
 
            Changed default to true in 22.10T-8 for RFC 7950
            compliance.";
+        type boolean;
+        default true;
+      }
+
+      leaf with-yang-push2 {
+        description
+          "Controls whether the YANG Push 2 functionality is
+           enabled. Only relevant is WITH_YANG_PUSH=1 and
+           WITH_YANG_PUSH2=1 are enabled in the server build.
+
+           If set to 'true', then the configured notifications
+           and UDP Notif protocol will be enabled for the
+           XML and JSON encodings.  The CBOR encoding is enabled
+           if WITH_YANG_CBOR=1 is used in the server build.
+
+           If set to 'false' then this functionality will not
+           be enabled, even if 'bundle yang-push' is used.
+
+           Ignored if YANG Push is not enabled as well.";
         type boolean;
         default true;
       }

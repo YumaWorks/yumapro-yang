@@ -128,6 +128,7 @@ module yumaworks-getbulk {
             enum candidate;
             enum running;
             enum startup;
+            enum operational;
           }
           default "running";
           description
