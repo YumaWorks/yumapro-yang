@@ -36,6 +36,13 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2025-11-07 {
+      description
+        "25.10-2:
+         - Add --with-regex-filter CLI parameter
+        ";
+    }
+
     revision 2025-08-23 {
       description
         "24.10-12:
@@ -3593,6 +3600,38 @@ module netconfd-pro {
       }
 
       uses ywapp:OcPatternParm;
+
+      leaf with-regex-filter {
+        description
+          "If set to 'true', the server will check content-match expressions
+           in subtree filters for a special string indicating the match
+           is a regular expression, not an exact string.
+
+           If set to 'false', the server will not check content match
+           tests for regular expression syntax.
+
+           Languages:
+
+             'r1' : YANG pattern syntax
+
+             'r2' : POSIX (ocpattern) syntax
+
+           Syntax:
+
+             'r1' left-paren expression right-paren
+
+             'r2' left-paren expression right-paren
+
+             No extra whitespace is allowed at all.
+
+           Example:
+
+             Match a string starting with 'eth':  r1(eth.*)
+
+          ";
+        type boolean;
+        default true;
+      }
 
       leaf with-schema-mount {
         description
