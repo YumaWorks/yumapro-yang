@@ -36,6 +36,13 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2025-11-24 {
+      description
+        "25.10-3:
+          -  Add --with-yang-metadata CLI parameter.
+        ";
+    }
+
     revision 2025-11-07 {
       description
         "25.10-2:
@@ -2596,8 +2603,8 @@ module netconfd-pro {
       leaf sil-invoke-for-defaults {
         description
           "If 'true' then a SIL or SIL-SA callback
-           will be invoked for default data nodes during
-           the load and load_config operations.
+           will be invoked for default data nodes during the edit
+           transactions.
 
            If 'false' then a SIL or SIL-SA callback will
            not be invoked for default data nodes.";
@@ -3809,6 +3816,8 @@ module netconfd-pro {
         type boolean;
         default true;
       }
+
+      uses ywapp:WithYangMetadataParm;
 
       leaf with-yang-push2 {
         description

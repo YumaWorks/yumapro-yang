@@ -74,6 +74,13 @@ module yangcli-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+     revision 2025-11-24 {
+       description
+         "25.10-3:
+           -  Add --with-yang-metadata CLI parameter.
+         ";
+     }
+
      revision 2025-06-29 {
        description
          "24.10T-11:
@@ -2688,6 +2695,8 @@ module yangcli-pro {
         type boolean;
         default false;
       }
+
+      uses ywapp:WithYangMetadataParm;
 
       leaf with-yanglib-cache {
         type boolean;

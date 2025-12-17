@@ -151,6 +151,24 @@ module yangdump-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+
+    revision 2025-12-05 {
+      description
+        "25.10-4:
+          -  Add --sid-list parameter
+          -  Add --sid-update-file parameter
+          -  Add --sid-extra-range parameter
+          -  Add sid-action choice
+        ";
+    }
+
+    revision 2025-11-24 {
+      description
+        "25.10-3:
+          -  Add --with-yang-metadata CLI parameter.
+        ";
+    }
+
     revision 2025-03-12 {
       description
         "24.10T-7:
@@ -664,24 +682,88 @@ module yangdump-pro {
           type empty;
         }
 
-        leaf sid-generate-file {
+        choice sid-action {
           description
-            "If present, generate a YANG SID file for a
-             YANG module.  Argument is the same as pyang
-             parameter.
+            "Only one SID file action is allowed.";
 
-              The string follows the format:
+          leaf sid-generate-file {
+            description
+              "If present, generate a YANG SID file for a
+               YANG module.  Argument is the same as pyang
+               parameter.
 
-               [range-start]:[range-size]
+                The string follows the format:
 
-             If the range starts at 10000 and the
-             range size is 50 then the string 10000:50
-             would be used.
+                 [range-start]:[range-size]
 
-             There must be one --module parameter entered
-             or the request will be rejected with an error.";
+               If the range starts at 10000 and the
+               range size is 50 then the string 10000:50
+               would be used.
 
-          type string;
+               There must be one --module parameter entered
+               or the request will be rejected with an error.";
+
+            type string;
+          }
+
+          case update {
+            leaf sid-update-file {
+              mandatory true;
+              description
+                "If present, update a YANG SID file for a
+                 YANG module.
+
+                 The argument has 2 forms
+
+                 1) date string
+                 2) filespec including '.sid' filespec
+
+                 There must be one --module parameter entered
+                 or the request will be rejected with an error.
+
+                 Example:
+                   --sid-update-file=2020-01-01
+                   --module=foo@2025-10-10
+
+                   OR
+
+                   --sid-update-file=foo@2020-01-05.sid
+                   --module=foo@2025-10-10
+                ";
+              type union {
+                type yt:Date;
+                type yt:NcModuleSpec;
+              }
+            }
+
+            leaf sid-extra-range {
+              description
+                "Specifies an additional range to use if the
+                 last range is filled.  Assigns the range even
+                 if not used!
+
+                 The string follows the format:
+
+                 [range-start]:[range-size]
+
+                 If the range starts at 10000 and the
+                 range size is 50 then the string 10000:50
+                 would be used.";
+              type string;
+            }
+          }   // end case update
+        }  // end choice sid-action
+
+
+        leaf sid-list {
+          description
+            "If present, print the YANG SID assignments
+             to STDOUT before writing the YANG SID file.
+
+             Ignored unless a parameter from the 'sid-action'
+             choice is also present.
+            ";
+          type empty;
         }
 
         leaf show-errors {
@@ -984,6 +1066,8 @@ module yangdump-pro {
         }
 
         uses ywapp:WarnOffYangParm;
+
+        uses ywapp:WithYangMetadataParm;
 
         leaf xsd-schemaloc {
           description

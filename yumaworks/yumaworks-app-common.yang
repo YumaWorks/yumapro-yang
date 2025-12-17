@@ -18,12 +18,19 @@ module yumaworks-app-common {
     description
        "Common CLI parameters used in all yumapro applications.
 
-     Copyright (c) 2012 - 2023 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2012 - 2025 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+    revision 2025-11-24 {
+       description
+         "25.10-3:
+           Add WithYangMetadataParm grouping containing
+            --with-yang-metadata leaf.";
+    }
 
     revision 2024-11-09 {
        description
@@ -1080,6 +1087,31 @@ module yumaworks-app-common {
            If 'false' then YANG compiler warnings will be enabled.
            Overrides the warn-up and warn-error parameters for
            YANG warnings. This parameter introduced in 24.10-2.
+          ";
+      }
+    }
+
+    grouping WithYangMetadataParm {
+      leaf with-yang-metadata {
+        type boolean;
+        default true;
+        description
+          "If 'true' then the YANG compiler will load the
+           'ietf-yang-metadata' module and use any
+            md:annotation statements that are found.
+
+            If 'false' then this module will not be loaded
+            and all 'md:annotation' statements will be ignored.
+
+            Note that enabling this parameter will cause a
+            YANG module to be rejected with errors if any
+            annotations are found which do not conform to
+            the definition in RFC 7952.
+
+            This parameter must be entered in the command line
+            to have any effect.  Do not use this parameter
+            in a config file since this is too late in the
+            initialization process to change the setting.
           ";
       }
     }
