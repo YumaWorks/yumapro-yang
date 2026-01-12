@@ -36,6 +36,15 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2025-12-12 {
+      description
+        "25.10-4:
+          -  Add --with-yumaworks-compare CLI parameter.
+          -  Add --tls-v1.3-only CLI parameter.
+          -  Add --with-factory-datastore CLI parameter.
+        ";
+    }
+
     revision 2025-11-24 {
       description
         "25.10-3:
@@ -3278,6 +3287,21 @@ module netconfd-pro {
         default false;
       }
 
+      leaf tls-v1.3-only {
+        description
+          "Require TLS version 1.3 to be used for
+           NETCONF over TLS sessions.
+
+           If 'true' then only TLS version 1.3 will be accepted
+           and the 'tls-deprecated-ok' parameter will be ignored.
+
+           If 'false' then only TLS versions 1.2 and 1.3 will
+           be accepted, unless the 'tls-deprecated-ok' parameter
+           is set to 'true'.";
+        type boolean;
+        default false;
+      }
+
       leaf trim-whitespace {
         description
           "If true, then trim leading and trailing whitespace from
@@ -3430,6 +3454,22 @@ module netconfd-pro {
           ";
         type boolean;
         default true;
+      }
+
+      leaf with-factory-datastore {
+        description
+          "If set to 'true', then the ietf-factory-default module will be
+           loaded and enabled. Otherwise, this module will not be
+           loaded.
+
+           -   Provides the 'fd:factory-default' NMDA datastore enum;
+               Not useful unless --with-nmda='true' also set.
+
+           -   Provides the '<factory-reset>' protocol operation.
+               Use with caution! Causes factory reset of entire device!
+          ";
+        type boolean;
+        default false;
       }
 
       leaf with-maintenance-mode {
@@ -4033,6 +4073,15 @@ module netconfd-pro {
       leaf with-yumaworks-cert-usermap {
         description
           "If set to 'true', then the yumaworks-cert-usermap module will
+           be loaded and enabled. Otherwise, this module will not be
+           loaded.";
+        type boolean;
+        default true;
+      }
+
+      leaf with-yumaworks-compare {
+        description
+          "If set to 'true', then the yumaworks-compare module will
            be loaded and enabled. Otherwise, this module will not be
            loaded.";
         type boolean;

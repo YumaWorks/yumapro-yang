@@ -1,0 +1,240 @@
+module yumaworks-compare {
+  yang-version 1.1;
+
+  namespace "urn:yumaworks:params:xml:ns:yang:yumaworks-compare";
+  prefix "ypcmp";
+
+  import ietf-yang-types {
+    prefix yang;
+    reference "RFC 6991: Common YANG Data Types";
+  }
+  import ietf-inet-types {
+    prefix inet;
+    reference "RFC 6991: Common YANG Data Types";
+  }
+  import ietf-datastores {
+    prefix ds;
+    reference
+      "RFC 8342: Network Management Datastore Architecture (NMDA)";
+  }
+  import ietf-yang-patch {
+    prefix ypatch;
+    reference
+      "RFC 8072: YANG Patch Media Type";
+  }
+  import yuma-ncx { prefix ncx; }
+
+  organization "YumaWorks, Inc.";
+
+  contact "Support <support at yumaworks.com>";
+
+  description
+    "Replacement for the ietf-nmda-compare 'compare' operation.
+
+     The NMDA compare operation focuses on NMDA datastores,
+     which does not address customer requirements for a
+     compare operation.
+
+     The replacement 'compare-config' operation focuses on
+     configuration comparisons, and allows a backup file to be
+     compared to a conventional datastore.
+
+     Each parameter is designed as an extensible choice.
+
+     Copyright (c) 2025 YumaWorks, Inc. All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject
+     to the license terms contained in, the BSD 3-Clause License
+     http://opensource.org/licenses/BSD-3-Clause";
+
+  revision 2025-12-12 {
+    description "Initial version.";
+  }
+
+  typedef compare-format {
+    type enumeration {
+      enum yang-patch {
+        description "YANG Patch output format";
+      }
+      enum edit-config {
+        description "edit-config output format";
+      }
+    }
+    description
+      "The output format of the comparison operation.";
+  }
+
+  grouping edit-config-parms {
+    anydata config {
+      ncx:root;
+      description
+        "The node to use in the config parameter of the edit-config
+         operation.
+
+         Will contain edit operation attributes as needed.";
+    }
+  }
+
+  rpc compare-config {
+    description
+      "Configuration compare operation.
+
+       compare-config <source> <target> [<filter>] [<compare-type>]
+
+       Retrieve the differences to create a patch that
+       could be applied to <target> so the result is
+       equivalent to the <source>.
+
+       Example:
+         config A contains:
+           /X=1
+           /Y=1
+
+         config B contains:
+           /X=2
+
+         compare source=A target=B
+           merge /X value=1
+           merge /Y value=1
+
+         compare source=B target=A
+           merge /X value=2
+           delete /Y
+
+       Restrictions:
+
+         - the 'operational' datastore is not supported yet
+         - the 'intended' datastore is treated as 'running'
+           until that datastore is supported in the server
+         - the source and target must be different or an
+           error is returned
+
+       Supported configuration sources:
+         - datastore
+         - backup (if --with-yumaworks-system=true)
+         - URL (if --with-url=true)
+
+       Supported filter types:
+         - subtree
+         - Xpath
+
+       Supported compare formats:
+         - YANG Patch
+         - edit-config
+      ";
+
+    input {
+      choice compare-source {
+        mandatory true;
+        leaf source {
+          type identityref {
+            base ds:datastore;
+          }
+          description
+            "The source datastore to be compared.";
+        }
+        leaf source-backup {
+          type string;
+          description
+            "The name of the source backup file to be compared.
+             This must match a saved backup file with the
+             yumaworks-system 'backup' operation.";
+        }
+        leaf source-url {
+          type inet:uri;
+          description
+            "The URL-based configuration is the compare source.";
+        }
+      }
+
+      choice compare-target {
+        mandatory true;
+        leaf target {
+          type identityref {
+            base ds:datastore;
+          }
+          description
+            "The target datastore to be compared.";
+        }
+        leaf target-backup {
+          type string;
+          description
+            "The name of the target backup file to be compared.
+             This must match a saved backup file with the
+             yumaworks-system 'backup' operation.";
+        }
+        leaf target-url {
+          type inet:uri;
+          description
+            "The URL-based configuration is the compare target.";
+        }
+      }
+
+      choice filter-spec {
+        description
+          "Identifies the portions of the datastores to be
+               compared.";
+        anydata subtree-filter {
+          description
+            "This parameter identifies the portions of the
+             target datastore to retrieve.";
+          reference
+            "RFC 6241, Section 6.";
+        }
+        leaf xpath-filter {
+          type yang:xpath1.0;
+          description
+            "This parameter contains an XPath expression
+             identifying the portions of the target
+             datastore to retrieve.";
+          reference
+            "RFC 6991: Common YANG Data Types";
+        }
+      }
+
+      leaf compare-format {
+        type compare-format;
+        default yang-patch;
+        description
+          "The output format to use in the 'differences' output.";
+      }
+    }
+
+    output {
+      choice compare-response {
+        description
+          "Comparison results.";
+        leaf no-matches {
+          type empty;
+          description
+            "This leaf indicates that the filter did not match
+             anything and nothing was compared.";
+        }
+        container differences {
+          description
+            "The list of differences";
+
+          choice compare-format {
+            description
+              "Allowing for different compare output formats.
+               Supporting YANG Patch first since this is standard
+               and already implemented in the server.";
+            case yang-patch {
+              uses ypatch:yang-patch {
+                description "YANG Patch format";
+              }
+            }
+            case edit-config {
+              uses edit-config-parms {
+                description "edit-config format";
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+}
