@@ -306,7 +306,7 @@ module yumaworks-extensions {
 
        If no sil-priority is set for an object, then the value
        of its nearest ancestor with the sil-priority extension
-       set will be used. If there is none, the the default
+       set will be used. If there is none, the default
        value of '255' will be used.
 
        If the SIL priority is the same for two objects in the

@@ -1741,7 +1741,7 @@ module yumaworks-sil-sa {
 
             anydata value {
               description
-                "Represents the the val_value based on XPath of
+                "Represents the val_value based on XPath of
                  object instance";
             }
           }

@@ -36,6 +36,13 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2026-01-17 {
+      description
+        "25.10-5:
+          -  Add --with-yanglib-augmentedby CLI parameter.
+        ";
+    }
+
     revision 2025-12-12 {
       description
         "25.10-4:
@@ -3839,6 +3846,20 @@ module netconfd-pro {
         // default true;  !! NOW OBSOLETE !!
         default false;
         status deprecated;
+      }
+
+      leaf with-yanglib-augmentedby {
+        description
+          "If set to 'true', then the ietf-yang-library-augmentedby module
+           will be loaded and enabled. Otherwise, this module will
+           not be loaded.
+
+           The --with-nmda or --with-new-yanglib parameter must be set
+           to 'true' or this parameter will be have no affect and the
+           module will not be loaded.
+          ";
+        type boolean;
+        default true;
       }
 
       leaf with-yang11-hello {

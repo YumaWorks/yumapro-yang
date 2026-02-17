@@ -144,13 +144,20 @@ module yangdump-pro {
                debug:  print general debugging trace info
                debug2: print verbose debugging trace info
 
-     Copyright (c) 2010 - 2025 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2010 - 2026 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2026-02-01 {
+      description
+        "25.10-5:
+          -  Add 'count' to --sid-action
+          -  Add 'summary' to --megarange-action
+        ";
+    }
 
     revision 2025-12-05 {
       description
@@ -592,6 +599,8 @@ module yangdump-pro {
 
              The following actions are defined:
 
+             - summary: print a summary of the megarange contents
+
              - template: generate a megarange.json template file
 
              - new: generate the data for an initial control file using
@@ -602,6 +611,7 @@ module yangdump-pro {
                an initial control file and SID file set.
 
              - new-sid: generate all the initial SID files
+
 
              The following operations are planned for a future release:
 
@@ -694,10 +704,15 @@ module yangdump-pro {
 
                 The string follows the format:
 
-                 [range-start]:[range-size]
+                 ('count' | range-start:range-size)
+
+               If the string 'count' is used then the number of
+               SIDs required will be printed in the output and
+               no SID file will be generated. Otherwise a
+               range specification is expected.
 
                If the range starts at 10000 and the
-               range size is 50 then the string 10000:50
+               range size is 50 then the string '10000:50'
                would be used.
 
                There must be one --module parameter entered
