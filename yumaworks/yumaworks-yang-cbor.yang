@@ -3,6 +3,7 @@ module yumaworks-yang-cbor {
     namespace "urn:yumaworks:params:xml:ns:yang:yumaworks-yang-cbor";
     prefix "ycbor";
 
+    import ietf-netconf-monitoring { prefix ncm; }
     import ietf-subscribed-notifications { prefix sn; }
     import ietf-sid-file { prefix sid; }
     import ietf-yang-types { prefix yang; }
@@ -38,12 +39,19 @@ module yumaworks-yang-cbor {
                         +--ro identifier?    union
 
 
-     Copyright (c) 2022, YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2022 - 2026, YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+    revision 2026-02-14 {
+       description
+         "25.10-6:
+            - Add 'sid' identity for the <get-schema> format leaf
+         ";
+    }
 
     revision 2025-11-02 {
        description
@@ -73,6 +81,14 @@ module yumaworks-yang-cbor {
         "RFC 8949: Concise Binary Object Representation (CBOR);
          draft-ietf-core-yang-cbor-20: CBOR Encoding of Data Modeled with YANG;
          draft-ietf-core-sid-18:  YANG Schema Item iDentifier (YANG SID)";
+    }
+
+    identity sid {
+      base ncm:schema-format;
+      description
+        "The YANG SID file format.";
+      reference
+        "RFC 9595: YANG Schema Item iDentifier (YANG SID)";
     }
 
     container yang-sid-info {

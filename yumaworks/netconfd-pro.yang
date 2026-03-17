@@ -29,12 +29,20 @@ module netconfd-pro {
         This module is not advertised by the server.
         It contains only CLI parameters.
 
-     Copyright (c) 2010 - 2025 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2010 - 2026 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+
+    revision 2026-02-24 {
+      description
+        "25.10-6:
+          -  Add --xml-strict-namespaces CLI parameter.
+        ";
+    }
 
     revision 2026-01-17 {
       description
@@ -4107,6 +4115,26 @@ module netconfd-pro {
            loaded.";
         type boolean;
         default true;
+      }
+
+      leaf xml-strict-namespaces {
+        description
+           "Controls strict XML namespace validation for incoming
+            NETCONF messages.
+
+            If set to 'true', the server rejects requests containing any
+            element whose effective namespace is missing (empty) or whose
+            namespace URI is not recognized for the target NETCONF operation
+            or YANG data model. The request is rejected with an <rpc-error>
+            using error-tag 'unknown-namespace', including <bad-element>
+            and <bad-namespace> in <error-info>, as defined in RFC 6241.
+
+            If set to 'false' (default), the server operates in a
+            permissive mode and does not fail a request solely due to
+            missing or unexpected namespaces. Processing may continue
+            and a debug message may be logged.";
+        type boolean;
+        default false;
       }
 
       leaf yangapi-server-url {
