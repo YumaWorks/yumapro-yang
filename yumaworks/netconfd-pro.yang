@@ -37,6 +37,14 @@ module netconfd-pro {
      http://opensource.org/licenses/BSD-3-Clause";
 
 
+    revision 2026-03-21 {
+      description
+        "25.10-7: YPW-2513
+          -  Change --with-yanglib-augmentedby default to false
+          -  Add usage of TCP Keepalive CLI parameters
+        ";
+    }
+
     revision 2026-02-24 {
       description
         "25.10-6:
@@ -2381,6 +2389,7 @@ module netconfd-pro {
            with previous releases. The value 'true' should be used
            since the information from these deprecated leafs is
            available in the YANG Library data structures.";
+
         type boolean;
         default false;
       }
@@ -3147,6 +3156,8 @@ module netconfd-pro {
         default candidate;
       }
 
+      uses ywapp:TcpKeepaliveParms;
+
       leaf tls-autosan-mode {
         description
           "If 'true' then the client certificate will be checked
@@ -3865,9 +3876,11 @@ module netconfd-pro {
            The --with-nmda or --with-new-yanglib parameter must be set
            to 'true' or this parameter will be have no affect and the
            module will not be loaded.
+
+           Augmenting the YANG library can cause errors some clients.
           ";
         type boolean;
-        default true;
+        default false;
       }
 
       leaf with-yang11-hello {

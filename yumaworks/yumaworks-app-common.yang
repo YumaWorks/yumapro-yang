@@ -25,6 +25,16 @@ module yumaworks-app-common {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2026-03-21 {
+       description
+         "25.10-7:
+           Add TcpKeepaliveParms grouping containing leafs:
+             --tcp-keepalive-enabled
+             --tcp-keepalive-interval
+             --tcp-keepalive-count
+         ";
+    }
+
     revision 2025-11-24 {
        description
          "25.10-3:
@@ -1115,6 +1125,73 @@ module yumaworks-app-common {
           ";
       }
     }
+
+    grouping TcpKeepaliveParms {
+      description
+        "Control TCP Keepalive messages on TCP sockets";
+
+      leaf tcp-keepalive-enabled {
+        type boolean;
+        default false;
+        description
+          "If 'true' then TCP Keepalives will be enabled for
+           TCP sockets created by the server.
+           Uses setsockopt function to set SO_KEEPALIVE socket option.
+
+           If 'false' then TCP Keepalives will not be enabled for
+           TCP sockets created by the server.
+          ";
+      }
+
+      leaf tcp-keepalive-interval {
+        type uint16 {
+          range "0 | 5 .. max";
+        }
+        units seconds;
+        default 0;
+        description
+          "This parameter is used for the TCP Keepalive Interval
+           parameter (TCP_KEEPINTVL). It is also used for the
+           TCP Keepalive Idle parameter (TCP_KEEPIDLE).
+
+           If TCP Keepalives are enabled, then the requested interval
+           to send them will be set according to this value. It is
+           ignored otherwise.
+
+           If set to 0 then the system default TCP Keepalive Idle and
+           Interval parameters will be used.
+
+           If set to a value between 5 and 65535, then that value will be
+           used for the TCP Keepalive Idle and Interval parameters.
+          ";
+      }
+
+      leaf tcp-keepalive-count {
+        type uint16 {
+          range "0 | 3 .. max";
+        }
+        default 0;
+        description
+          "This parameter is used for the TCP Keepalive Count
+           parameter (TCP_KEEPCNT).
+
+           If TCP Keepalives are enabled, then the requested number
+           of consecutive TCP Keepalive messages that can be missed
+           will be set according to this value. It is ignored otherwise.
+
+           If set to 0 then the system default TCP Keepalive Count
+           parameter will be used.
+
+           If set to a value between 3 and 65535, then that value will be
+           used for the TCP Keepalive Count parameter.
+          ";
+      }
+
+
+
+    }
+
+
 
 
 

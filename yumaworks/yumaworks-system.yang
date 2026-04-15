@@ -402,8 +402,8 @@ module yumaworks-system {
         description
           "Include the 'ywx:owner' attribute in the response for nodes
            that have stored owner names.  The --save-owners CLI parameter
-           for the server must be set to 'complex' or 'all' for any
-           owner names to be saved.";
+           for the server must be set to 'true' for any owner names
+           to be saved.";
       }
     }
 
