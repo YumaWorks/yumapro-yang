@@ -21,7 +21,7 @@ module yumaworks-server {
        "Runtime access to netconfd-pro server parameters.
         The following parameters can be changed at run-time
         and the new value will be activated immediately.
-        The last value in effect when the server shuts dow will be
+        The last value in effect when the server shuts down will be
         used at the next reboot.
 
         * allowed-user

@@ -18,12 +18,26 @@ module yumaworks-app-common {
     description
        "Common CLI parameters used in all yumapro applications.
 
-     Copyright (c) 2012 - 2025 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2012 - 2026 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+    revision 2026-04-24 {
+       description
+         "25.10-8:
+           Add WithJsonMetadataParm grouping containing leaf:
+             --with-json-metadata
+           Add WithOwnerParm grouping containing leaf:
+             --with-owners
+           Add WithLastModifiedParm grouping containing leaf:
+             --with-last-modified
+           Add WithEtagParm grouping containing leaf:
+             --with-etag
+         ";
+    }
 
     revision 2026-03-21 {
        description
@@ -1186,13 +1200,56 @@ module yumaworks-app-common {
            used for the TCP Keepalive Count parameter.
           ";
       }
-
-
-
     }
 
 
+    grouping WithJsonMetadataParm {
+      description
+        "Control JSON Metadata support from RFC 7952";
 
+      leaf with-json-metadata {
+        type boolean;
+        default true;
+        description
+          "If 'true' then JSON Metadata will be enabled
+           for sending and receiving YANG data encoded
+           in JSON.
+
+           If 'false' then JSON Metadata will not be enabled.
+          ";
+        reference
+          "RFC 7952, section 5.2";
+      }
+    }
+
+    grouping WithOwnersParm {
+      leaf with-owners {
+        type empty;
+        description
+          "Include the 'ywx:owner' attribute in the response for nodes
+           that have stored owner names.  The --save-owners CLI parameter
+           for the server must be set to 'true' for any owner names
+           to be saved.";
+      }
+    }
+
+    grouping WithLastModifiedParm {
+      leaf with-last-modified {
+        type empty;
+        description
+          "Include the 'ywx:last-modified' attribute in the response for
+           configuration data nodes that have stored last-change timestamps.";
+      }
+    }
+
+    grouping WithEtagParm {
+      leaf with-etag {
+        type empty;
+        description
+          "Include the 'ywx:etag' attribute in the response for
+           configuration data nodes that have stored ETag values.";
+      }
+    }
 
 
 }

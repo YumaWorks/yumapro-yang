@@ -37,6 +37,14 @@ module netconfd-pro {
      http://opensource.org/licenses/BSD-3-Clause";
 
 
+    revision 2026-04-24 {
+      description
+        "25.10-8: YPW-2520
+          -  Add usage of WithJsonMetadataParm grouping
+          -  Add --with-yumaworks-nmda CLI parameter
+        ";
+    }
+
     revision 2026-03-21 {
       description
         "25.10-7: YPW-2513
@@ -3619,6 +3627,8 @@ module netconfd-pro {
         default false;
       }
 
+      uses ywapp:WithJsonMetadataParm;
+
       leaf with-modtags {
         description
           "If set to 'true', then the module tags feature will be
@@ -4036,6 +4046,17 @@ module netconfd-pro {
         default true;
       }
 
+      leaf with-yumaworks-nmda {
+        description
+          "If set to 'true', then the yumaworks-nmda module will
+           be loaded and enabled. Otherwise, this module will not be
+           loaded. Ignored unless --with-nmda=true.
+           Adds some input parameters to the 'get-data' operation.
+          ";
+        type boolean;
+        default true;
+      }
+
       leaf with-yumaworks-callhome {
         description
           "If set to 'true', then the yumaworks-callhome module will
@@ -4145,7 +4166,25 @@ module netconfd-pro {
             If set to 'false' (default), the server operates in a
             permissive mode and does not fail a request solely due to
             missing or unexpected namespaces. Processing may continue
-            and a debug message may be logged.";
+            and a debug message may be logged.
+
+            This parameter also controls whether strict namespaces
+            are checked in must/when XPath expressions.
+
+            If set to 'true' then a missing prefix will be replaced
+            by the module prefix for the context node of the XPath
+            expression (as specified in RFC 7950).
+
+            If set to 'false' then a missing prefix will not
+            be replaced, and the child name will match if found
+            in any module.
+
+            Example: the lldp container is not in the current module
+            so this XPath will fail if strict namespaces are checked.
+
+            must '../../lldp/tx-enable';
+           ";
+
         type boolean;
         default false;
       }
