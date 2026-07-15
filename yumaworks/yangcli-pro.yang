@@ -74,6 +74,13 @@ module yangcli-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+     revision 2026-06-01 {
+       description
+         "25.10-10:
+           -  Add --binary-input-mode CLI parameter.
+         ";
+     }
+
      revision 2026-04-24 {
        description
          "25.10-8:
@@ -1724,9 +1731,35 @@ module yangcli-pro {
          type empty;
       }
 
+      leaf binary-input-mode {
+        description
+          "Specifies the behavior when processing input
+           for a binary leaf or leaf-list.
+
+           -   Can be set at run-time with a configuration parameter.
+           -   This parameter specifies the boot-time behavior.
+          ";
+
+        type enumeration {
+          enum raw {
+            description
+              "String input for a binary type is the raw input text.
+               This text will be  converted to Base64 before sending
+               to a server.";
+          }
+          enum base64 {
+            description
+              "String input for a binary type is already encoded in
+               Base64 format.  This text will not be converted to
+               Base64 before sending to a server.";
+          }
+        }
+        default raw;
+      }
+
       leaf break-key-mode {
         description
-          "Specifies the bahavior when the break key is pressed
+          "Specifies the behavior when the break key is pressed
            during a command. The default mode is 'program' to
            maintain backward compatibility.";
          type enumeration {
