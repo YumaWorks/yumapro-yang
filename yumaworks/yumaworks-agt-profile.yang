@@ -302,7 +302,7 @@ module yumaworks-agt-profile {
           bit26 agt_use_netconf;
           bit27 agt_use_local_transport;
           bit28 agt_use_notifications;
-          bit29 agt_system_sorted;      // deprecated !!!
+          bit29 agt_system_sorted;      // Current status now, since 23.10-6
           bit30 agt_lax_namespaces;
           bit31 agt_use_yuma_proc;
           ";
