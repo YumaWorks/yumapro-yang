@@ -5,6 +5,11 @@ module yumaworks-schema-mount-annot {
   import yumaworks-extensions { prefix ywx; }
   import ietf-yang-schema-mount { prefix schema; }
 
+  revision 2026-09-09 {
+    description
+      "Fix sil-aio-get2 extension usage missing arg";
+  }
+
   revision 2021-12-08 {
     description
       "Initial version";
@@ -12,13 +17,13 @@ module yumaworks-schema-mount-annot {
 
   deviation /schema:schema-mounts/schema:namespace {
     deviate add {
-      ywx:sil-aio-get2;
+      ywx:sil-aio-get2 val;
     }
   }
 
   deviation /schema:schema-mounts/schema:mount-point {
     deviate add {
-      ywx:sil-aio-get2;
+      ywx:sil-aio-get2 val;
     }
   }
 }
