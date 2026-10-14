@@ -1,0 +1,153 @@
+module yumaworks-rpc-stats {
+  yang-version 1.1;
+  namespace "http://yumaworks.com/ns/yang/yumaworks-rpc-stats";
+  prefix yrpcm;
+
+  import ietf-yang-types         { prefix yang; }
+  import ietf-netconf-monitoring { prefix mon; }
+
+  organization "YumaWorks, Inc.";
+
+  contact
+    "Support <support@yumaworks.com>";
+
+  description
+    "RPC Monitoring Module.
+
+     Copyright (c) 2026, YumaWorks, Inc. All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject
+     to the license terms contained in, the BSD 3-Clause License
+     http://opensource.org/licenses/BSD-3-Clause
+    ";
+
+  revision 2026-04-17 {
+    description "Initial version.";
+  }
+
+  typedef stats-time {
+    type uint64;
+    units "microseconds";
+    description
+      "Duration in microseconds.";
+  }
+
+  grouping rpc-stats-counters {
+    container rpc-statistics {
+      leaf total-rpcs {
+        type yang:counter64;
+        description
+          "Total number of RPCs invoked (good + bad).";
+      }
+      leaf total-time {
+        type stats-time;
+        description
+          "Total execution time for all RPCs (good + bad),
+           in microseconds.";
+      }
+      leaf max-time {
+        type stats-time;
+        description
+          "Maximum execution time of any RPC, in microseconds.";
+      }
+      leaf total-octets {
+        type yang:counter64;
+        units "octets";
+        description "Total octets processed by all RPCs.";
+      }
+    }
+  }
+
+  augment "/mon:netconf-state/mon:statistics" {
+    description
+      "RPC statistics for NETCONF operations.";
+
+    uses rpc-stats-counters;
+  }
+
+  rpc get-rpc-stats {
+    description
+      "Return stats for a specific RPC by module and RPC name.";
+
+    input {
+      leaf module-name {
+        type yang:yang-identifier;
+        description
+          "Module name of the RPC.
+           If this parameter is missing then there must be one
+           match for the specified 'rpc-name' or an 'operation-failed'
+           error will be returned.";
+      }
+      leaf rpc-name {
+        type yang:yang-identifier;
+        mandatory true;
+        description "RPC operation name in the module.";
+      }
+    }
+
+    output {
+      uses rpc-stats-counters;
+    }
+  }
+
+  rpc get-top-rpc-stats {
+    description
+      "Return stats for the Top-N RPCs by server-defined order.";
+
+    input {
+      leaf sort-by {
+        type enumeration {
+          enum total-rpcs {
+            description "Sort by the total-rpcs field";
+          }
+          enum total-time {
+            description "Sort by the total-time field";
+          }
+          enum max-time {
+            description "Sort by the max-time field";
+          }
+          enum total-octets {
+            description "Sort by the total-octets field";
+          }
+        }
+        default total-rpcs;
+      }
+      leaf max-count {
+        type uint32 { range "1..max"; }
+        default 10;
+        description "Maximum number of TopN RPC entries to return.";
+      }
+    }
+
+    output {
+      list top-rpc {
+        key "index";
+        description "Top-N RPC entries.";
+        leaf index {
+          type uint32 {
+            range "1 .. max";
+          }
+          description "Rank of this RPC (1..N).";
+        }
+        leaf module-name {
+          type yang:yang-identifier;
+          mandatory true;
+          description
+            "Module name of the RPC for this entry.";
+        }
+        leaf rpc-name {
+          type yang:yang-identifier;
+          mandatory true;
+          description "RPC operation name for this entry.";
+        }
+        uses rpc-stats-counters;
+      }
+    }
+  }
+
+  rpc clear-rpc-stats {
+    description
+      "Clear all collected RPC statistics.";
+  }
+}

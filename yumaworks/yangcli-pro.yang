@@ -74,6 +74,12 @@ module yangcli-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+     revision 2026-09-12 {
+       description
+         "Add --tls-strict and --ssl-server-name CLI parameters and
+          corresponding run-time system variables.";
+     }
+
      revision 2026-06-01 {
        description
          "25.10-10:
@@ -2264,6 +2270,42 @@ module yangcli-pro {
       }
 
       uses ywapp:InsecureOkParm;
+
+      leaf tls-strict {
+        type boolean;
+        default false;
+        description
+          "Opt in to additional TLS server-identity verification and a
+           NETCONF TLS 1.2 minimum version. This option applies to all
+           TLS sessions in the process. Existing stronger
+           OpenSSL version policy is preserved.
+           If false, existing certificate-chain validation is retained
+           without additional DNS/IP matching or client version limits.
+           If true, verify the ssl-server-name identity when configured;
+           otherwise use the outbound server address. TLS Call Home
+           requires ssl-server-name in strict mode because the incoming
+           address is not a trusted reference identity.
+           The $$tls-strict system variable can change this setting for
+           subsequent connections.
+           The DEBUG-only insecure-ok option bypasses certificate
+           verification, including strict identity checks.";
+      }
+
+      leaf ssl-server-name {
+        type inet:host;
+        description
+          "Expected certificate DNS name or IP address when tls-strict
+           is true. Ignored when tls-strict is false. This setting applies
+           to all TLS sessions in the process and does
+           not change the network destination.
+           Strict outbound TLS defaults to the configured server address.
+           Strict TLS Call Home requires this explicit reference identity.
+           DNS names match certificate subjectAltName entries; IP
+           addresses match iPAddress entries. Common Name fallback and
+           partial wildcards are not accepted in strict mode.
+           The $$ssl-server-name system variable can change this setting
+           for subsequent connections.";
+      }
 
       leaf keepalive-interval {
         type uint32 {

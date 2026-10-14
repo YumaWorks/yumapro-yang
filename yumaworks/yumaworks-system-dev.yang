@@ -3,6 +3,7 @@ module yumaworks-system-dev {
   prefix "sysdev";
 
   import ietf-system { prefix sys; }
+  import yuma-ncx { prefix ncx; }
 
   organization "YumaWorks, Inc.";
 
@@ -18,6 +19,14 @@ module yumaworks-system-dev {
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+  revision 2026-06-26 {
+    description
+      "25.10T-11: Remove the /system/radius deviation:
+       the subtree is now used
+       for RADIUS external group lookups.
+       Mark the RADIUS shared-secret as a password.";
+  }
 
   revision 2024-04-09 {
     description "Initial version.";
@@ -48,15 +57,19 @@ module yumaworks-system-dev {
     deviate not-supported;
   }
 
-  deviation "/sys:system/sys:radius" {
-    description
-      "Configuration of the RADIUS client is not supported yet.";
-    deviate not-supported;
-  }
-
   deviation "/sys:system/sys:authentication" {
     description
       "The authentication configuration subtree is not supported yet.";
     deviate not-supported;
+  }
+
+  deviation "/sys:system/sys:radius/sys:server/sys:transport/" +
+            "sys:udp/sys:udp/sys:shared-secret" {
+    description
+      "Mask the RADIUS shared secret in log output and in NETCONF replies,
+       the same as the --radius-secret CLI parameter.";
+    deviate add {
+      ncx:password;
+    }
   }
 }

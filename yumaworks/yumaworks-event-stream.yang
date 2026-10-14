@@ -18,7 +18,7 @@ module yumaworks-event-stream {
         This module is only loaded if the with-yumaworks-event-stream
         parameter is set to 'true'.
 
-        Copyright (c) 2021 - 2024 YumaWorks, Inc. All rights reserved.
+        Copyright (c) 2021 - 2026 YumaWorks, Inc. All rights reserved.
 
         Redistribution and use in source and binary forms, with or
         without modification, is permitted pursuant to, and subject
@@ -26,6 +26,13 @@ module yumaworks-event-stream {
         http://opensource.org/licenses/BSD-3-Clause.
 
        ";
+
+    revision 2026-09-04 {
+      description
+        "24.10-25:
+         - Update --eventlog-size description
+        ";
+    }
 
     revision 2024-02-16 {
       description
@@ -103,18 +110,16 @@ module yumaworks-event-stream {
            "Specifies the maximum number of notification events
             that will be saved in each notification replay buffer.
             The oldest entries will be deleted first.
-            The value 0 will cause the server to store 1
-            message.
-
-            When this limit is reached then the oldest event will
-            be deleted, even if it has not been delivered
-            yet.
+            The value 0 means that no replay buffer is kept: a
+            delivered event is freed when the next event is
+            queued, so at most one stays in memory.
 
             The eventlog-size is per event stream, not total size.
 
-            This parameter controls the number of buffered
-            notifications so do not queue more than this
-            many notifications at once from SIL or SIL-SA code.
+            Events that have not been delivered yet to every
+            active subscription are kept in addition to this
+            buffer, up to the limit on the number of undelivered
+            events if one is set.
 
             If this parameter is not provided then the default will be
             the value of the --eventlog-size CLI parameter. The default

@@ -36,12 +36,41 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2026-09-16 {
+      description
+        "25.10-13: YPW-2552
+          -  Add --max-pending-events CLI parameter
+        ";
+    }
+
+    revision 2026-09-04 {
+      description
+        "24.10-25:
+         - Update --eventlog-size description
+         - Update --max-burst description
+        ";
+    }
+
+    revision 2026-07-13 {
+      description
+        "25.10T-11: YPW-2489
+          -  Add RADIUS CLI parameters:
+             --with-radius,
+             --radius-addr,
+             --radius-port,
+             --radius-secret,
+             --radius-timeout,
+             --radius-attempts
+        ";
+    }
 
     revision 2026-04-24 {
       description
         "25.10-8: YPW-2520
           -  Add usage of WithJsonMetadataParm grouping
           -  Add --with-yumaworks-nmda CLI parameter
+         25.10T-9: YPW-2458
+          -  Add --with-yumaworks-rpc-stats CLI parameter
         ";
     }
 
@@ -73,6 +102,7 @@ module netconfd-pro {
           -  Add --with-yumaworks-compare CLI parameter.
           -  Add --tls-v1.3-only CLI parameter.
           -  Add --with-factory-datastore CLI parameter.
+          -  Add --with-sysrepo CLI parameter.
         ";
     }
 
@@ -1593,10 +1623,14 @@ module netconfd-pro {
            "Specifies the maximum number of notification events
             that will be saved in each notification replay buffer.
             The oldest entries will be deleted first.
-            The value 0 will cause the server to periodically
-            clean out the messages that have already been
-            delivered. The eventlog-size is per event stream,
-            not total size.";
+            The value 0 means that no replay buffer is kept: a
+            delivered event is freed when the next event is
+            queued, so at most one stays in memory.
+            The eventlog-size is per event stream, not total size.
+            Events that have not been delivered yet to every
+            active subscription are kept in addition to this
+            buffer, up to the limit on the number of undelivered
+            events if one is set.";
          type uint32;
          default 1000;
       }
@@ -1950,10 +1984,10 @@ module netconfd-pro {
       leaf max-burst {
         description
           "Specifies the maximum number of notifications
-           that should be sent to one session, within a
-           one second time interval.  The value 0 indicates
-           that the server should not limit notification
-           bursts at all.";
+           that should be sent to one session in one pass
+           of the notification delivery loop.  The value 0
+           indicates that the server should not limit
+           notification bursts at all.";
         type uint32;
         default 10;
       }
@@ -1986,6 +2020,29 @@ module netconfd-pro {
         }
         units "bytes";
         default 1400;
+      }
+
+      leaf max-pending-events {
+        description
+          "Specifies the maximum number of notification events
+           that can wait for delivery on one event stream, in
+           addition to the eventlog-size replay buffer.
+           A subscriber that reads events slower than the server
+           generates them leaves undelivered events in the
+           stream queue. Once this limit is reached the oldest
+           undelivered events are dropped and a warning is
+           logged, so that a slow or stalled subscriber cannot
+           grow the server memory without bound.
+           The value 0 disables the limit, which is the default,
+           so the server behaves as before unless a limit is set.
+           The limit is per event stream, not total.
+           While a stream holds more than half of the limit and
+           the session keeps accepting data, one delivery pass
+           may send more than --max-burst events to that session,
+           so a subscriber that reads fast does not lose events
+           to the limit only because of the burst pacing.";
+        type uint32;
+        default 0;
       }
 
       leaf max-getbulk {
@@ -2381,6 +2438,63 @@ module netconfd-pro {
         }
         units "centiseconds";
         default 500;    // 5 seconds
+      }
+
+      leaf radius-addr {
+        description
+          "Specifies one RADIUS server to query for NACM external
+           groups. This server is tried first, before any servers
+           configured in /system/radius (ietf-system).
+           For more servers use the /system/radius YANG configuration.
+           This parameter is ignored if the --radius-secret parameter
+           is missing, or if --with-radius is 'false'.";
+        type inet:host;
+      }
+
+      leaf radius-port {
+        description
+          "Specifies the authentication port of the RADIUS server set
+           with the --radius-addr parameter.
+           This parameter is ignored if --with-radius is 'false'.";
+        type inet:port-number;
+        default 1812;
+      }
+
+      leaf radius-secret {
+        description
+          "Specifies the shared secret for the RADIUS server set
+           with the --radius-addr parameter. There is no default;
+           if this parameter is missing, --radius-addr is ignored.
+           The secret must not be empty: RFC 2865 relies on it
+           to authenticate the server replies.
+           This parameter is ignored if --with-radius is 'false'.";
+        type string {
+          length "1 .. max";
+        }
+        ncx:password;
+      }
+
+      leaf radius-timeout {
+        description
+          "Specifies the number of seconds to wait for a reply
+           from a RADIUS server before trying the next server.
+           This parameter is ignored if --with-radius is 'false'.";
+        units "seconds";
+        type uint8 {
+          range "1 .. max";
+        }
+        default 5;
+      }
+
+      leaf radius-attempts {
+        description
+          "Specifies the number of passes over the RADIUS server list
+           before the NACM external group lookup gives up.
+           This parameter is ignored if --with-radius is 'false'.";
+        type uint8 {
+          range "1 .. max";
+        }
+        default 2;
       }
 
       leaf remove-schema-aug-leafs {
@@ -3247,7 +3361,9 @@ module netconfd-pro {
         description
           "The cipherlist parameter to use to configure the server
            using the SSL_CTX_set_cipher_list function in openssl.
-           This parameter is passed directly and not checked.
+           This parameter configures TLS 1.2 and earlier cipher suites,
+           not TLS 1.3 cipher suites. If OpenSSL rejects the list, TLS
+           initialization fails.
 
            Warning! For Advanced OpenSSL Users Only!
 
@@ -3743,6 +3859,26 @@ module netconfd-pro {
         default false;
       }
 
+      leaf with-sysrepo {
+        description
+          "Enable integration with sysrepo.
+
+           When set to 'true', the netconfd-pro server will attempt to
+           connect to a sysrepo instance during startup. If the connection
+           succeeds, the following synchronization steps are performed:
+
+             - Configuration sync:
+               The configuration stored in sysrepo is synchronized into the
+               netconfd-pro running datastore.
+
+             - Modules sync:
+               All YANG modules present in sysrepo are loaded into
+               netconfd-pro, subject to the server's normal module
+               loading rules.";
+        type boolean;
+        default "false";
+      }
+
       uses ywapp:WithTermMsgParm;
 
       leaf with-url {
@@ -3808,6 +3944,25 @@ module netconfd-pro {
            and this parameter is set to 'true'.";
         type boolean;
         default false;
+      }
+
+      leaf with-radius {
+        description
+          "This feature is only available if the server image
+           is built with the WITH_RADIUS=1 compiler flag.
+
+           If set to 'true', then the RADIUS client for NACM
+           external groups is enabled. If set to 'false', then
+           this feature is disabled and the following CLI
+           parameters are ignored:
+             - radius-addr
+             - radius-port
+             - radius-secret
+             - radius-timeout
+             - radius-attempts
+           The /system/radius configuration is also ignored.";
+        type boolean;
+        default true;
       }
 
       leaf with-restconf {
@@ -4053,6 +4208,16 @@ module netconfd-pro {
            loaded. Ignored unless --with-nmda=true.
            Adds some input parameters to the 'get-data' operation.
           ";
+        type boolean;
+        default true;
+      }
+
+      leaf with-yumaworks-rpc-stats {
+        description
+          "If set to 'true', then the yumaworks-rpc-stats module
+           will be loaded and enabled. This module provides detailed
+           statistics for each RPC operation and augments
+           the /netconf-state/statistics container.";
         type boolean;
         default true;
       }
