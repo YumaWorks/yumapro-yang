@@ -11,7 +11,7 @@ YumaWorks maintains multiple release trains to increase stability.
 Each October a new release train is started. (e.g. 22.10, 23.10).
 
 The existing module set follows the 25.10 release train.
-The `yumaworks-ietf-alarms.yang` module is an addition for the optional
+The `yumaworks-alarms.yang` module is an addition for the optional
 alarm feature in 26.10.
 Use the modules included in the YumaPro package release
 for other release trains.

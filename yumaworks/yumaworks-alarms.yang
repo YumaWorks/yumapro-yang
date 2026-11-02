@@ -1,6 +1,6 @@
-module yumaworks-ietf-alarms {
+module yumaworks-alarms {
   yang-version 1.1;
-  namespace "http://yumaworks.com/ns/yumaworks-ietf-alarms";
+  namespace "http://yumaworks.com/ns/yumaworks-alarms";
   prefix ywal;
 
   import ietf-alarms {
