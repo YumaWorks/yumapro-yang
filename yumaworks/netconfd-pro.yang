@@ -36,6 +36,12 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2026-11-02 {
+      description
+        "YPW-2354: Add --with-yumaworks-alarms to enable the
+         yumaworks-alarms companion module.";
+    }
+
     revision 2026-09-16 {
       description
         "25.10-13: YPW-2552
@@ -4152,6 +4158,18 @@ module netconfd-pro {
            loaded.";
         type boolean;
         default true;
+      }
+
+      leaf with-yumaworks-alarms {
+        description
+          "If set to 'true', then the yumaworks-alarms module will
+           be loaded and enabled. Otherwise, this module will not be
+           loaded. The module provides Linux alarm identities and
+           configuration. Linux monitoring also requires the
+           WITH_IETF_ALARMS_LINUX build flag, the ietf-alarms and
+           ietf-interfaces SILs, and per-source enablement.";
+        type boolean;
+        default false;
       }
 
       leaf with-yumaworks-config-change {
