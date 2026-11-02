@@ -1,0 +1,154 @@
+module yumaworks-alarms {
+  yang-version 1.1;
+  namespace "http://yumaworks.com/ns/yumaworks-alarms";
+  prefix ywal;
+
+  import ietf-alarms {
+    prefix al;
+    revision-date 2019-09-11;
+  }
+  import ietf-interfaces {
+    prefix if;
+    revision-date 2018-02-20;
+  }
+
+  organization "YumaWorks, Inc.";
+  contact "Support <support@yumaworks.com>";
+  description
+    "Companion identities and Linux instrumentation controls for the
+     IETF alarm SIL. This companion module has no separate
+     SIL. Standard IETF modules are unchanged.
+
+     Copyright (c) 2026 YumaWorks, Inc. All rights reserved.
+
+     Redistribution and use in source and binary forms, with or without
+     modification, is permitted pursuant to, and subject to the license
+     terms contained in the BSD 3-Clause License
+     http://opensource.org/licenses/BSD-3-Clause";
+
+  revision 2026-10-21 {
+    description
+      "Initial interface alarm integration for the ietf-alarms implementation.";
+  }
+
+  identity link-down {
+    base al:alarm-type-id;
+    description
+      "Concrete alarm: an administratively enabled managed Linux interface
+       is operationally down. Major severity. Check the cable and peer.
+       Confirmed operational up clears this same alarm. Administrative
+       disable, disappearance, and unknown states do not confirm recovery.";
+  }
+
+  identity cpu-usage-high {
+    base al:alarm-type-id;
+    description "Aggregate Linux CPU utilization exceeds its threshold.";
+  }
+  identity memory-usage-high {
+    base al:alarm-type-id;
+    description "Linux available memory falls below its configured margin.";
+  }
+  identity filesystem-usage-high {
+    base al:alarm-type-id;
+    description "Filesystem capacity usage exceeds its threshold.";
+  }
+
+  grouping usage-thresholds {
+    description "Opt-in usage alarm with hysteresis and confirmation time.";
+    leaf enabled {
+      type boolean;
+      default false;
+      description "Enable collection. Disabling does not clear an alarm.";
+    }
+    leaf raise-percent {
+      type uint8 {
+        range "1..100";
+      }
+      units "percent";
+      default 90;
+      description "Raise at or above this utilization.";
+    }
+    leaf clear-percent {
+      type uint8 {
+        range "0..99";
+      }
+      units "percent";
+      default 80;
+      description "Clear at or below this utilization.";
+    }
+    leaf debounce-seconds {
+      type uint16 {
+        range "1..3600";
+      }
+      units "seconds";
+      default 5;
+      description
+        "Continuous qualifying time before raising or clearing. A reading
+         in the hysteresis band or a failed read resets pending time.";
+    }
+  }
+
+  container linux-health-alarms {
+    description
+      "Optional Linux health collection by libalarm-linux in the server's
+       namespaces. Alarms use the corresponding configuration instance as
+       resource and major severity. No collection is enabled by default.";
+    container cpu {
+      must "clear-percent < raise-percent";
+      uses usage-thresholds;
+      description
+        "Aggregate busy CPU percentage from successive /proc/stat samples.
+         Idle and I/O-wait time are excluded from busy time. The initial
+         sample establishes a baseline and cannot raise an alarm.";
+    }
+    container memory {
+      must "clear-percent < raise-percent";
+      uses usage-thresholds;
+      description
+        "Used percentage is 100 * (MemTotal - MemAvailable) / MemTotal
+         from /proc/meminfo. MemAvailable is required; cached memory is
+         accounted for by the kernel's availability estimate.";
+    }
+    list filesystem {
+      key path;
+      max-elements 64;
+      must "clear-percent < raise-percent";
+      description
+        "Filesystem containing the absolute path, observed with statvfs.
+         Usage is used blocks divided by used plus unprivileged available
+         blocks. Zero capacity or failed reads do not indicate recovery.";
+      leaf path {
+        type string {
+          length "1..1024";
+          pattern '/.*';
+        }
+        description "Absolute path in the server's mount namespace.";
+      }
+      uses usage-thresholds;
+    }
+  }
+
+  augment "/if:interfaces/if:interface" {
+    description
+      "Opt-in reporting by the ietf-interfaces SIL. Requires the
+       WITH_IETF_ALARMS_LINUX=1 build flag and the core alarm SIL.";
+    leaf alarm-enabled {
+      type boolean;
+      default false;
+      description
+        "Monitor this interface for link-down. Disabling monitoring or
+         deleting the interface does not clear its retained alarm.";
+    }
+    leaf alarm-debounce-seconds {
+      type uint16 {
+        range "1..3600";
+      }
+      units "seconds";
+      default 5;
+      description
+        "Confirmed down/up time before raising/clearing. Unknown states
+         and failed reads reset pending transitions. The managed interface
+         instance-identifier is the alarm resource.";
+    }
+  }
+}
