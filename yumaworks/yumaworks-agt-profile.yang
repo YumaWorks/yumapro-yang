@@ -18,12 +18,17 @@ module yumaworks-agt-profile {
       initialization.  Keep the agt-profile grouping in
       synch with the agt_profile_t in agt/agt.h
 
-     Copyright (c) 2014 - 2024 YumaWorks, Inc. All rights reserved.
+     Copyright (c) 2014 - 2026 YumaWorks, Inc. All rights reserved.
 
      Redistribution and use in source and binary forms, with or
      without modification, is permitted pursuant to, and subject
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
+
+  revision 2026-10-08 {
+     description
+       "Add bit14 agt_push_patch_all to all-booleans3 flag.";
+  }
 
   revision 2024-10-03 {
      description
@@ -365,6 +370,7 @@ module yumaworks-agt-profile {
           bit11 agt_highres_event_time
           bit12 agt_sil_skip_global_edit_validate
           bit13 agt_sil_skip_global_edit_apply
+          bit14 agt_push_patch_all
         ";
       }
 

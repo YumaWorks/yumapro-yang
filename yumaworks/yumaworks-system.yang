@@ -39,6 +39,14 @@ module yumaworks-system {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2026-10-12 {
+        description
+          "26.10-2: YPW-2303
+             - Reserve the '_auto-' file name prefix in the
+               backup operation for automatic backup files
+          ";
+    }
+
     revision 2026-04-25 {
         description
           "25.10-8:
@@ -249,7 +257,10 @@ module yumaworks-system {
           description
             "File name for the backup. A simple identifier name
              is expected with no directory specifications or
-             file extensions added. (e.g., 'backup1').";
+             file extensions added. (e.g., 'backup1').
+             The prefix '_auto-' is reserved for automatic backup
+             files (--auto-backup). A file name starting with this
+             prefix is rejected with an 'invalid-value' error.";
         }
         leaf overwrite {
           type boolean;

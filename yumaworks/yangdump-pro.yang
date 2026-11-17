@@ -151,6 +151,12 @@ module yangdump-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+    revision 2026-10-19 {
+      description
+        "[YPW-2581] [FD1441]
+         Add optional enum-constants for C SIL header generation.";
+    }
+
     revision 2026-02-01 {
       description
         "25.10-5:
@@ -664,6 +670,16 @@ module yangdump-pro {
              If not present then parse in the normal mode and print
              parser summaries for these modules.";
           type empty;
+        }
+
+        leaf enum-constants {
+          description
+            "Generate enumeration name and numeric constants in C SIL
+             headers. Names are shared within a module; numeric constants
+             are shared for identical name/value pairs. The module part
+             follows short-names and force-prefix. Disabled by default.";
+          type boolean;
+          default false;
         }
 
         leaf short-names {

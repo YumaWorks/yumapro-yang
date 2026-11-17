@@ -1740,10 +1740,19 @@ module yangcli-pro {
       leaf binary-input-mode {
         description
           "Specifies the behavior when processing input
-           for a binary leaf or leaf-list.
+           for a binary leaf or leaf-list, or for a union
+           containing a binary member.
 
            -   Can be set at run-time with a configuration parameter.
            -   This parameter specifies the boot-time behavior.
+
+           YANG union member types are evaluated in their declaration
+           order, and the first matching member is selected. In base64
+           mode, a string member declared before a binary member preserves
+           even valid Base64 input as a string. A binary member declared
+           first decodes the same input as binary. Place generic string
+           members last when binary or other more specific union members
+           should take precedence.
           ";
 
         type enumeration {

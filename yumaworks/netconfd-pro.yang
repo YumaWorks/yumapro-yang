@@ -36,6 +36,23 @@ module netconfd-pro {
      to the license terms contained in, the BSD 3-Clause License
      http://opensource.org/licenses/BSD-3-Clause";
 
+
+    revision 2026-10-12 {
+      description
+        "26.10-2: YPW-2303
+          -  Add automatic backup CLI parameters:
+             --auto-backup,
+             --auto-backup-interval,
+             --auto-backup-max
+         YPW-2571, FD105262
+          -  Add --rpc-reply-dscp CLI parameter
+          -  Support DSCP for dynamic subscription notifications
+          -  Add optional TLS client-certificate OCSP responder
+             parameters.
+          -  Add --push-patch-all CLI parameter. [YPW-2575]
+        ";
+    }
+
     revision 2026-09-16 {
       description
         "25.10-13: YPW-2552
@@ -1163,6 +1180,54 @@ module netconfd-pro {
            If false, it will not include in the local time zone.";
         type boolean;
         default false;
+      }
+
+      leaf auto-backup {
+        description
+          "If true, the server saves the running configuration
+           in a new backup file every auto-backup-interval minutes,
+           if the running config-id has no automatic backup yet.
+
+           The file is named '_auto-<config-id>.xml' and is saved
+           in the same directory as files created with the
+           <backup> operation. It is listed in
+           /netconf-state/backup-files and can be used with the
+           <restore> and <delete-backup> operations.
+           An existing non-empty backup file is never overwritten.
+
+           Ignored if the <backup> operation is not available
+           (e.g., --with-yumaworks-system=false).";
+        type boolean;
+        default false;
+      }
+
+      leaf auto-backup-interval {
+        description
+          "How often, in minutes, the running configuration
+           is saved in an automatic backup file
+           if its config-id has no automatic backup yet.
+           The first backup can be saved one interval after the server starts.
+           Ignored unless auto-backup is true.";
+        type uint16 {
+          range "1 .. max";
+        }
+        units "minutes";
+        default 60;
+      }
+
+      leaf auto-backup-max {
+        description
+          "Maximum number of automatic backup files to keep.
+           When a new automatic backup file is saved, the oldest
+           files over this limit are deleted;
+           the new file is always kept.
+           Only files named '_auto-<config-id>.xml' are deleted.
+           The value 0 means no limit.
+           Ignored unless auto-backup is true.";
+        type uint16 {
+          range "0 .. 1024";
+        }
+        default 3;
       }
 
       leaf autodelete-pdu-error {
@@ -2421,6 +2486,23 @@ module netconfd-pro {
         default true;
       }
 
+      leaf push-patch-all {
+        description
+          "Specifies how a YANG Patch is generated for simulated
+           operational on-change updates.
+
+           If 'true', one replace edit containing the entire filtered
+           result is sent when any selected value changes.
+
+           If 'false', the current and previous filtered results are
+           compared and only changed data nodes are included as edits.
+
+           This parameter is ignored if
+           'push-simop-patch-update' is 'false'.";
+        type boolean;
+        default true;
+      }
+
       leaf push-simop-period {
         description
           "Specifies the value for the 'period' parameter that
@@ -2644,6 +2726,19 @@ module netconfd-pro {
            the default behavior.";
         type boolean;
         default false;
+      }
+
+      leaf rpc-reply-dscp {
+        description
+          "Specifies the Differentiated Services Code Point (DSCP)
+           value to use for NETCONF <rpc-reply> messages on an
+           NETCONF-over-TLS session. NETCONF-over-SSH sessions are
+           not supported because OpenSSH owns the network socket.
+           The value is applied before each reply because a session
+           can use a different DSCP value for subscription
+           notification messages.";
+        type inet:dscp;
+        default 0;
       }
 
       leaf running-error {
@@ -3332,6 +3427,28 @@ module netconfd-pro {
         default false;
       }
 
+      leaf tls-ocsp-responder {
+        type inet:uri;
+        description
+          "Optional HTTP OCSP responder URL for NETCONF over TLS client
+           certificates. The responder is resolved once at startup.
+           Requires mutual TLS authentication. Only a trusted, signed,
+           fresh good response admits the client. Errors reject the TLS
+           connection. CRL checking remains independent; use tls-crl-mode
+           off to replace local CRL checking. HTTPS is not supported.
+           Does not check intermediate CA revocation or enable stapling.";
+      }
+
+      leaf tls-ocsp-timeout {
+        type uint16 { range "1..30"; }
+        units "seconds";
+        default 5;
+        description
+          "Maximum combined OCSP connect and request wait per OCSP
+           request. Relevant only with tls-ocsp-responder configured.
+           Startup DNS resolution is outside this timeout.";
+      }
+
       leaf tls-crl-mode {
         description
           "Specifies how Certificate  Revocation List checking
@@ -3715,7 +3832,8 @@ module netconfd-pro {
       leaf with-fsync {
         description
           "If set to 'true', the server will flush data
-           to disk when saving the startup configuration.
+           to disk when saving the startup configuration
+           or a backup file.
            This helps prevent corruption after unexpected
            power loss, especially on filesystems like XFS.
            If set to 'false', the flush is skipped for performance.";
